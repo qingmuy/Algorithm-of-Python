@@ -1227,3 +1227,426 @@ class Solution:
 
 
 
+### 1019：相同的树
+
+Tag：树、深度优先搜索、广度优先搜索、二叉树
+
+#### 问题
+
+给你两棵二叉树的根节点 `p` 和 `q` ，编写一个函数来检验这两棵树是否相同。
+
+如果两个树在结构上相同，并且节点具有相同的值，则认为它们是相同的。
+
+ 
+
+**示例 1：**
+
+![img](./assets/ex1.jpg)
+
+```
+输入：p = [1,2,3], q = [1,2,3]
+输出：true
+```
+
+**示例 2：**
+
+![img](./assets/ex2.jpg)
+
+```
+输入：p = [1,2], q = [1,null,2]
+输出：false
+```
+
+**示例 3：**
+
+![img](./assets/ex3.jpg)
+
+```
+输入：p = [1,2,1], q = [1,1,2]
+输出：false
+```
+
+
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        if not q and not p:
+            return True
+        if not p or not q:
+            return False
+        return p.val == q.val and self.isSameTree(p.right,q.right) and self.isSameTree(p.left,q.left)
+```
+
+
+
+### 1020：对称二叉树
+
+Tag：树、深度优先搜索、广度优先搜索、二叉树
+
+#### 问题
+
+给你一个二叉树的根节点 `root` ， 检查它是否轴对称。
+
+ 
+
+**示例 1：**
+
+![img](./assets/1698026966-JDYPDU-image.png)
+
+```
+输入：root = [1,2,2,3,4,4,3]
+输出：true
+```
+
+**示例 2：**
+
+![img](./assets/1698027008-nPFLbM-image.png)
+
+```
+输入：root = [1,2,2,null,3,null,3]
+输出：false
+```
+
+
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def judge(self,rootleft:Optional[TreeNode],rootright:Optional[TreeNode]) -> bool:
+            if not rootleft and not rootright:
+                return True
+            if not rootleft or not rootright:
+                return False
+            if rootleft.val != rootright.val:
+                return False
+            else:
+                return self.judge(rootleft.left,rootright.right) and self.judge(rootleft.right,rootright.left)
+            return True
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        return self.judge(root.left,root.right)
+```
+
+
+
+### 1021：二叉树的最大深度
+
+Tag：树、深度优先搜索、广度优先搜索、二叉树
+
+#### 问题
+
+给定一个二叉树 `root` ，返回其最大深度。
+
+二叉树的 **最大深度** 是指从根节点到最远叶子节点的最长路径上的节点数。
+
+ 
+
+**示例 1：**
+
+![img](./assets/tmp-tree.jpg)
+
+ 
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：3
+```
+
+**示例 2：**
+
+```
+输入：root = [1,null,2]
+输出：2
+```
+
+
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def Judge(self, root) -> int:
+        if not root:
+            return 0
+        elif not root.left and not root.right:
+            return 1
+        elif root.left and root.right:
+            return max(1 + self.Judge(root.left),1 + self.Judge(root.right))
+        elif root.left or root.right:
+            return max((1 + self.Judge(root.left)),(1 + self.Judge(root.right)))
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        return self.Judge(root)
+```
+
+
+
+### 1022：将有序数组转换为二叉搜索树
+
+Tag：树、二叉搜索树、分治、二叉树
+
+#### 问题
+
+给你一个整数数组 `nums` ，其中元素已经按 **升序** 排列，请你将其转换为一棵 **高度平衡** 二叉搜索树。
+
+**高度平衡** 二叉树是一棵满足「每个节点的左右两个子树的高度差的绝对值不超过 1 」的二叉树。
+
+ 
+
+**示例 1：**
+
+![img](./assets/btree1.jpg)
+
+```
+输入：nums = [-10,-3,0,5,9]
+输出：[0,-3,9,-10,null,5]
+解释：[0,-10,5,null,-3,null,9] 也将被视为正确答案：
+```
+
+**示例 2：**
+
+![img](./assets/btree.jpg)
+
+```
+输入：nums = [1,3]
+输出：[3,1]
+解释：[1,null,3] 和 [3,1] 都是高度平衡二叉搜索树。
+```
+
+
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        lenth = len(nums)
+        # 二叉搜索树，左子树比根节点小，右子树比根节点大
+        # 每次二分 递归
+        # 创建二叉树
+        def createTree(l , r) -> Optional[TreeNode]:
+            if l > r:
+                return None
+            mid = (l + r) // 2
+            tree = TreeNode(nums[mid])
+            tree.left = createTree(l,mid - 1)
+            tree.right = createTree(mid + 1,r)
+            return tree
+        return createTree(0,lenth - 1)
+```
+
+
+
+### 1023：平衡二叉树
+
+Tag：树、深度优先搜索、二叉树
+
+#### 问题
+
+给定一个二叉树，判断它是否是高度平衡的二叉树。
+
+本题中，一棵高度平衡二叉树定义为：
+
+> 一个二叉树*每个节点* 的左右两个子树的高度差的绝对值不超过 1 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/balance_1.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：true
+```
+
+**示例 2：**
+
+![img](./assets/balance_2.jpg)
+
+```
+输入：root = [1,2,2,3,3,null,null,4,4]
+输出：false
+```
+
+**示例 3：**
+
+```
+输入：root = []
+输出：true
+```
+
+
+
+#### 解法
+
+普通方法：
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left 
+#         self.right = right
+class Solution:
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        # 判断的是每个节点的左右子树的高度差
+        # 而不是整棵树最高节点和最低节点的高度差
+        # 将树分为左右，判断左右即可
+        def lenth(root) -> int:
+            if not root:
+                return 0
+            elif not root.left and not root.right:
+                return 1
+            elif root.left and root.right:
+                return max(1 + lenth(root.left),1 + lenth(root.right))
+            elif root.left or root.right:
+                return max((1 + lenth(root.left)),(1 + lenth(root.right)))
+        def Judge(root):
+            if not root or (not root.left and not root.right):
+                return True
+            if abs(lenth(root.left) - lenth(root.right)) > 1:
+                return False
+            else:
+                return Judge(root.left) and Judge(root.right)
+        return Judge(root)
+```
+
+剪枝法：
+
+该方法即使用了最简单的方法统计了树的高度，同时还可以判定树是否为平衡二叉树。
+
+精髓在于最后的return：如果两侧深度差的绝对值不大于1则正常返回树的长度（此时平衡），否则返回-1；
+
+而从整体看，第一层return，实际上就决定了这个树是否平衡。
+
+```python
+class Solution:
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        def recur(root):
+            if not root: return 0
+            left = recur(root.left)
+            if left == -1: return -1
+            right = recur(root.right)
+            if right == -1: return -1
+            return max(left, right) + 1 if abs(left - right) <= 1 else -1
+
+        return recur(root) != -1
+```
+
+
+
+### 1024：二叉树的最小深度
+
+Tag：树、二叉树、深度优先搜索、广度优先搜索
+
+#### 问题
+
+给定一个二叉树，找出其最小深度。
+
+最小深度是从根节点到最近叶子节点的最短路径上的节点数量。
+
+**说明：**叶子节点是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/ex_depth.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：2
+```
+
+**示例 2：**
+
+```
+输入：root = [2,null,3,null,4,null,5,null,6]
+输出：5
+```
+
+
+
+#### 解法
+
+递归：
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def minDepth(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        elif not root.left and not root.right:
+            return 1
+        elif not root.left:
+            return self.minDepth(root.right) + 1
+        elif not root.right:
+            return self.minDepth(root.left) + 1
+        else:
+            return min(self.minDepth(root.right) + 1,self.minDepth(root.left) + 1)
+        return self.minDepth(root) + 1
+```
+
+迭代：
+
+该迭代方法中，使用了栈（列表）储存元组的方法，每次读取列表中最后的元组，来记录深度和节点对象（中间值）。
+
+直到最先找到某个节点是叶子节点即可：最先找到的必定最小。
+
+```python
+class Solution:
+    def minDepth(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        if not root:
+            return 0
+        
+        deque = []
+        deque.append((1, root))
+        
+        while deque:
+            depth, root = deque.pop(0) 
+            # 判断是否是叶子节点
+            if not root.left and not root.right:
+                return depth    
+            # 非空记录节点+深度
+            if root.left:deque.append((depth+1, root.left))
+            if root.right:deque.append((depth+1, root.right))
+```
+
