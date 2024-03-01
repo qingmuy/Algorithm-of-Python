@@ -1437,6 +1437,12 @@ Tag：树、二叉搜索树、分治、二叉树
 
 #### 解法
 
+递归创建二叉树，难点在于要平衡，所以要均分左右
+
+其实只要每次寻找中间值就好
+
+精妙之处在于无论奇数偶数，计算出的中间节点都是一样的：四舍五入；比如6和7
+
 ```python
 # Definition for a binary tree node.
 # class TreeNode:
@@ -1508,6 +1514,10 @@ Tag：树、深度优先搜索、二叉树
 
 普通方法：
 
+lenth方法用来计算树的深度
+
+再判断左右树的深度差绝对值即可。
+
 ```python
 # Definition for a binary tree node.
 # class TreeNode:
@@ -1543,9 +1553,13 @@ class Solution:
 
 该方法即使用了最简单的方法统计了树的高度，同时还可以判定树是否为平衡二叉树。
 
-精髓在于最后的return：如果两侧深度差的绝对值不大于1则正常返回树的长度（此时平衡），否则返回-1；
+对于recur函数，其有两个作用：1.探查树的深度 2.判断树是否为平衡树
 
-而从整体看，第一层return，实际上就决定了这个树是否平衡。
+关于其第一个作用不做解释，就是判断深度。
+
+但是其第二个作用的实现，很为精妙：首先，`if left == -1: return -1`和`if right == -1: return -1`两句，实现的功能是，一旦发现有不平衡的部分，则全局返回-1来判断此树不是平衡树；其次，其每次探查完左右子树的长度后立即比对是否为平衡树，可以立即返回结果；最后，这种极为巧妙地层级设计帮助一旦遇到非平衡情况能全局返回最终结果。
+
+对待这个函数要全局来看：仅从第一层来看的话，其比较的是左右两侧的最大值的长度，直觉上不能比较是否平衡，但是实际上，其完全遍历了树的左右，是正确的。
 
 ```python
 class Solution:
@@ -1599,6 +1613,8 @@ Tag：树、二叉树、深度优先搜索、广度优先搜索
 
 递归：
 
+整棵树遍历返回最小深度
+
 ```python
 # Definition for a binary tree node.
 # class TreeNode:
@@ -1630,10 +1646,6 @@ class Solution:
 ```python
 class Solution:
     def minDepth(self, root):
-        """
-        :type root: TreeNode
-        :rtype: int
-        """
         if not root:
             return 0
         
@@ -1648,5 +1660,278 @@ class Solution:
             # 非空记录节点+深度
             if root.left:deque.append((depth+1, root.left))
             if root.right:deque.append((depth+1, root.right))
+```
+
+
+
+### 1025：路径总和
+
+Tag：树、二叉树、深度优先搜索、广度优先搜索
+
+#### 问题
+
+给你二叉树的根节点 `root` 和一个表示目标和的整数 `targetSum` 。判断该树中是否存在 **根节点到叶子节点** 的路径，这条路径上所有节点值相加等于目标和 `targetSum` 。如果存在，返回 `true` ；否则，返回 `false` 。
+
+**叶子节点** 是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/pathsum1.jpg)
+
+```
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+输出：true
+解释：等于目标和的根节点到叶节点路径如上图所示。
+```
+
+**示例 2：**
+
+![img](./assets/pathsum2.jpg)
+
+```
+输入：root = [1,2,3], targetSum = 5
+输出：false
+解释：树中存在两条根节点到叶子节点的路径：
+(1 --> 2): 和为 3
+(1 --> 3): 和为 4
+不存在 sum = 5 的根节点到叶子节点的路径。
+```
+
+**示例 3：**
+
+```
+输入：root = [], targetSum = 0
+输出：false
+解释：由于树是空的，所以不存在根节点到叶子节点的路径。
+```
+
+
+
+#### 解法
+
+递归，找到某个路径的节点总和是否为某个特定值，可以将问题转化为是否有一条路可以在到达叶子节点的时候将目标值减为0。
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if not root:
+            return False
+        else:
+            if root.left and root.right:
+                return self.hasPathSum(root.left, targetSum - root.val) or self.hasPathSum(root.right, targetSum - root.val)
+            elif not root.left and not root.right and targetSum - root.val == 0:
+                return True
+            else:
+                return self.hasPathSum(root.left, targetSum - root.val) if root.left else self.hasPathSum(root.right, targetSum - root.val)
+```
+
+
+
+### 1026：杨辉三角
+
+Tag：动态规划
+
+#### 问题
+
+给定一个非负整数 *`numRows`，*生成「杨辉三角」的前 *`numRows`* 行。
+
+在「杨辉三角」中，每个数是它左上方和右上方的数的和。
+
+![img](./assets/1626927345-DZmfxB-PascalTriangleAnimated2.gif)
+
+ 
+
+**示例 1:**
+
+```
+输入: numRows = 5
+输出: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]
+```
+
+**示例 2:**
+
+```
+输入: numRows = 1
+输出: [[1]]
+```
+
+
+
+#### 解法
+
+杨辉三角的一个特点是：左右恒为1
+
+而且其某层的元素就是上一个列表的相邻值相加得来，所以核心代码在于根据上一层计算出下一层
+
+有意思的是：解决杨辉三角每层左右都是1的方法是先添加1，执行完核心代码再添加1
+
+```python
+class Solution:
+    def generate(self, numRows: int) -> List[List[int]]:
+        # 最左和最右 + 1
+        # 每次将上层列表的值 求和
+        result = [[1]]
+        for i in range(1, numRows):
+            temp = [1]
+            # 获取上层列表
+            last_lst = result[i - 1]
+            for j in range(1, len(last_lst)):
+                temp.append(last_lst[j] + last_lst[j - 1])
+            temp.append(1)
+            result.append(temp)
+        return result
+```
+
+
+
+### 1027：杨辉三角 II
+
+Tag：动态规划
+
+#### 问题
+
+给定一个非负索引 `rowIndex`，返回「杨辉三角」的第 `rowIndex` 行。
+
+在「杨辉三角」中，每个数是它左上方和右上方的数的和。
+
+![img](./assets/1626927345-DZmfxB-PascalTriangleAnimated2-1709296357890-7.gif)
+
+ 
+
+**示例 1:**
+
+```
+输入: rowIndex = 3
+输出: [1,3,3,1]
+```
+
+**示例 2:**
+
+```
+输入: rowIndex = 0
+输出: [1]
+```
+
+**示例 3:**
+
+```
+输入: rowIndex = 1
+输出: [1,1]
+```
+
+
+
+#### 解法
+
+比上一题多计算一层并返回最后一层即可
+
+```python
+class Solution:
+    def getRow(self, rowIndex: int) -> List[int]:
+        # 最左和最右 + 1
+        # 每次将上层列表的值 求和
+        result = [[1]]
+        for i in range(1, rowIndex + 1):
+            temp = [1]
+            # 获取上层列表
+            last_lst = result[i - 1]
+            for j in range(1, len(last_lst)):
+                temp.append(last_lst[j] + last_lst[j - 1])
+            temp.append(1)
+            result.append(temp)
+        return result[-1]
+```
+
+
+
+### 1028：买卖股票的最佳时机
+
+Tag：动态规划
+
+#### 问题
+
+给定一个数组 `prices` ，它的第 `i` 个元素 `prices[i]` 表示一支给定股票第 `i` 天的价格。
+
+你只能选择 **某一天** 买入这只股票，并选择在 **未来的某一个不同的日子** 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+
+返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 `0` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：[7,1,5,3,6,4]
+输出：5
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+```
+
+**示例 2：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+
+
+#### 解法
+
+本题暴力解法最简单，但是很容易超时
+
+方法一：很好理解，每次记录自遍历开始的最低价格和最大差值
+
+其中，先获得最低价格后再计算最大差值，可以保证永远不会减出负数，避免了高买低出
+
+方法二：方法二精髓在于相较于方法一减小了计算量，其核心思想是，假设第一天为最低价格，向后遍历，遇到更低的价格就将更新最低价格，遇到不是最低的价格就直接使用今日价格减最低价格获得答案，答案随着遍历更新。
+
+至于其减少的计算量就是：方法一在最低价格更新后还会相减一次，结果必为0，没有意义。
+
+```python
+# class Solution:
+#     def maxProfit(self, prices: List[int]) -> int:
+#         # 锚定某天买入，推以后最大值卖出
+#         # 暴力解法：超时
+#         lenth = len(prices)
+#         lst = []
+#         for i in range(lenth):
+#             lst.append(max(prices[j] for j in range(i, lenth)) - prices[i])
+#         return max(lst)
+
+# 方法一
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0
+        minprice = prices[0]
+        maxprofit = 0
+        for price in prices:
+            minprice = min(minprice, price)
+            maxprofit = max(maxprofit, price - minprice)
+        return maxprofit
+
+# 方法二
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0
+        ans=0
+        curmin=prices[0]
+        for i,v in enumerate(prices):
+            if v<curmin:
+                curmin=v
+            else:
+                ans=max(ans, v-curmin)
+        return ans
 ```
 
