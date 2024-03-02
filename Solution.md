@@ -1935,3 +1935,154 @@ class Solution:
         return ans
 ```
 
+
+
+### 1029：验证回文串
+
+Tag：双指针、字符串
+
+#### 问题
+
+如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 **回文串** 。
+
+字母和数字都属于字母数字字符。
+
+给你一个字符串 `s`，如果它是 **回文串** ，返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入: s = "A man, a plan, a canal: Panama"
+输出：true
+解释："amanaplanacanalpanama" 是回文串。
+```
+
+**示例 2：**
+
+```
+输入：s = "race a car"
+输出：false
+解释："raceacar" 不是回文串。
+```
+
+**示例 3：**
+
+```
+输入：s = " "
+输出：true
+解释：在移除非字母数字字符之后，s 是一个空字符串 "" 。
+由于空字符串正着反着读都一样，所以是回文串。
+```
+
+
+
+#### 解法
+
+两种方法区别在于如何校验是否是回文串
+
+目前调库快于双指针
+
+```python
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        # 调库高手:更快
+        # 处理字符串：根据ASCII码，只加入字母，对大写字母处理
+        lst = []
+        for i in s:
+            if (ord(i) >= 97 and ord(i) <= 122) or (ord(i) >= 48 and ord(i) <= 57):
+                lst.append(i)
+            elif ord(i) >= 65 and ord(i) <= 90:
+                lst.append(chr(ord(i) + 32))
+        
+        new_s = "".join(lst)
+        return new_s == new_s[::-1]
+
+        # 双指针
+        lst = []
+        for i in s:
+            if (ord(i) >= 97 and ord(i) <= 122) or (ord(i) >= 48 and ord(i) <= 57):
+                lst.append(i)
+            elif ord(i) >= 65 and ord(i) <= 90:
+                lst.append(chr(ord(i) + 32))
+
+        lenth = len(lst)
+        for i in range(lenth // 2):
+            if lst[i] == lst[lenth - 1]:
+                lenth -= 1
+            else:
+                return False
+        return True
+```
+
+
+
+### 1030：只出现一次的数字
+
+Tag：位运算、数组
+
+#### 问题
+
+给你一个 **非空** 整数数组 `nums` ，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
+
+你必须设计并实现线性时间复杂度的算法来解决此问题，且该算法只使用常量额外空间。
+
+ 
+
+**示例 1 ：**
+
+```
+输入：nums = [2,2,1]
+输出：1
+```
+
+**示例 2 ：**
+
+```
+输入：nums = [4,1,2,1,2]
+输出：4
+```
+
+**示例 3 ：**
+
+```
+输入：nums = [1]
+输出：1
+```
+
+
+
+#### 解法
+
+位运算：对二进制形式的数字进行位运算，如果两个数字相同则返回0，如果不同则返回两个二进制数的不同之处（由两个二进制数字的1填充）
+
+异或运算的精髓在于：其符合交换律，比如a ^ b = b ^ a。
+
+对于本题目而言：若出现数组[2, 2, 1, 4, 4]，无需在意1 ^ 4的结果，因为最后其还要有1 ^ 4 ^ 4 运算，最终结果还是1。
+
+```python
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        # 暴力破解
+        # 10%
+        lenth = len(nums)
+        if lenth == 1:
+            return nums[0]
+        lst = []
+        for i in range(lenth):
+            if nums[i] not in lst:
+                lst.append(nums[i])
+            else:
+                lst.remove(nums[i])
+        return lst[0]
+
+        # 位运算
+        lenth = len(nums)
+        if lenth == 1: return nums[0]
+        result = nums[0]
+        for i in range(1, lenth):
+            result = result ^ nums[i]
+        return result
+```
+
