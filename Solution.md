@@ -32,6 +32,8 @@ LeetCode：100x
 
 [1016 - 删除排序链表中的重复元素](#p1016)
 
+[1031 - 环形链表](#p1031)
+
 
 
 #### 栈
@@ -83,6 +85,8 @@ LeetCode：100x
 [1017 - 合并两个有序数组](#p1017)
 
 [1029 - 验证回文串](#p1029)
+
+[1031 - 环形链表](#p1031)
 
 
 
@@ -2202,5 +2206,92 @@ class Solution:
         for i in range(1, lenth):
             result = result ^ nums[i]
         return result
+```
+
+
+
+### 1031 - 环形链表<a id="p1031"></a>
+
+Tag：哈希表、链表、双指针
+
+#### 问题
+
+给你一个链表的头节点 `head` ，判断链表中是否有环。
+
+如果链表中有某个节点，可以通过连续跟踪 `next` 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 `pos` 来表示链表尾连接到链表中的位置（索引从 0 开始）。**注意：`pos` 不作为参数进行传递** 。仅仅是为了标识链表的实际情况。
+
+*如果链表中存在环* ，则返回 `true` 。 否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/circularlinkedlist.png)
+
+```
+输入：head = [3,2,0,-4], pos = 1
+输出：true
+解释：链表中有一个环，其尾部连接到第二个节点。
+```
+
+**示例 2：**
+
+![img](./assets/circularlinkedlist_test2.png)
+
+```
+输入：head = [1,2], pos = 0
+输出：true
+解释：链表中有一个环，其尾部连接到第一个节点。
+```
+
+**示例 3：**
+
+![img](./assets/circularlinkedlist_test3.png)
+
+```
+输入：head = [1], pos = -1
+输出：false
+解释：链表中没有环。
+```
+
+
+
+#### 解法
+
+暴力解法：数据量有范围，选最大范围处理即可。
+
+双指针解法：快的指针终将追上慢的指针，它们之间的相对距离以1的距离缩减。
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+# 暴力解法
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        index = 0
+        while index < 10001:
+            if not head:
+                return False
+            head = head.next
+            index += 1
+        return True
+
+# 快慢指针：快的指针必定会追上慢的指针
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        slow = fast = head
+        while fast:
+            if fast.next:
+                fast = fast.next.next
+            else:
+                break
+            slow = slow.next
+            if fast == slow:
+                return True
+        return False
 ```
 
