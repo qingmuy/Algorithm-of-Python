@@ -62,6 +62,10 @@ LeetCode：100x
 
 [1025 - 路径总和](#p1025)
 
+[1032 - 二叉树的前序遍历](#p1032)
+
+[1033 - 二叉树的后序遍历](#p1033)
+
 
 
 #### 哈希表
@@ -106,6 +110,12 @@ LeetCode：100x
 
 [1006 - 合并两个有序链表](#p1006)
 
+[1018 - 二叉树的中序遍历](#p1018)
+
+[1032 - 二叉树的前序遍历](#p1032)
+
+[1033 - 二叉树的后序遍历](#p1033)
+
 
 
 #### 二分查找
@@ -127,8 +137,6 @@ LeetCode：100x
 ## 题目列表
 
 ### 1001 - 两数之和<a id="p1001"></a>
-
-Tag：数组、哈希表
 
 #### 题目
 
@@ -194,8 +202,6 @@ class Solution:
 
 ### 1002 - 回文数<a id="p1002"></a>
 
-Tag：数学
-
 #### 题目
 
 给你一个整数 `x` ，如果 `x` 是一个回文整数，返回 `true` ；否则，返回 `false` 。
@@ -250,8 +256,6 @@ class Solution:
 
 
 ### 1003 - 罗马数字转整数<a id="p1003"></a>
-
-Tag：字符串、哈希表、数学
 
 #### 题目
 
@@ -348,8 +352,6 @@ class Solution:
 
 ### 1004 - 最长公共前缀<a id="p1004"></a>
 
-Tag：字符串
-
 #### 问题
 
 编写一个函数来查找字符串数组中的最长公共前缀。
@@ -398,8 +400,6 @@ class Solution:
 
 
 ### 1005 - 有效的括号<a id="p1005"></a>
-
-Tag：栈、字符串
 
 #### 问题
 
@@ -512,8 +512,6 @@ class Solution:
 
 ### 1006 - 合并两个有序链表<a id="p1006"></a>
 
-Tag：递归、链表
-
 #### 题目
 
 将两个升序链表合并为一个新的 **升序** 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 
@@ -580,8 +578,6 @@ class Solution:
 
 
 ### 1007 - 删除有序数组中的重复项<a id="p1007"></a>
-
-Tag：数组、双指针
 
 #### 题目
 
@@ -655,8 +651,6 @@ class Solution:
 
 
 ### 1008 - 移除元素<a id="p1008"></a>
-
-Tag：数组、双指针
 
 #### 问题
 
@@ -768,8 +762,6 @@ class Solution:
 
 ### 1009 - 找出字符串中第一个匹配项的下标<a id="p1009"></a>
 
-Tag：双指针、字符串
-
 #### 问题
 
 给你两个字符串 `haystack` 和 `needle` ，请你在 `haystack` 字符串中找出 `needle` 字符串的第一个匹配项的下标（下标从 0 开始）。如果 `needle` 不是 `haystack` 的一部分，则返回 `-1` 。
@@ -817,8 +809,6 @@ class Solution:
 
 ### 1010 - 搜索插入位置<a id="p1010"></a>
 
-Tag：数组、二分查找
-
 #### 问题
 
 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
@@ -865,8 +855,6 @@ class Solution:
 
 ### 1011 - 最后一个单词的长度<a id="p1011"></a>
 
-Tag：字符串
-
 #### 问题
 
 给你一个字符串 `s`，由若干单词组成，单词前后用一些空格字符隔开。返回字符串中 **最后一个** 单词的长度。
@@ -912,8 +900,6 @@ class Solution:
 
 
 ### 1012 - 加一<a id="p1012"></a>
-
-Tag：数组、数学
 
 #### 问题
 
@@ -977,8 +963,6 @@ class Solution:
 
 ### 1013 - 二进制求和<a id="p1013"></a>
 
-Tag：位运算、数学、字符串
-
 #### 问题
 
 给你两个二进制字符串 `a` 和 `b` ，以二进制字符串的形式返回它们的和。
@@ -1012,8 +996,6 @@ class Solution:
 
 
 ### 1014 - x的平方根<a id="p1014"></a>
-
-Tag：数学、二分查找
 
 #### 问题
 
@@ -1054,8 +1036,6 @@ class Solution:
 
 
 ### 1015 - 爬楼梯<a id="p1015"></a>
-
-Tag：记忆化搜索、数学、动态规划
 
 #### 问题
 
@@ -1110,8 +1090,6 @@ class Solution:
 
 
 ### 1016 - 删除排序链表中的重复元素<a id="p1016"></a>
-
-Tag：链表
 
 #### 问题
 
@@ -1190,8 +1168,6 @@ class Solution:
 
 ### 1017 - 合并两个有序数组<a id="p1017"></a>
 
-Tag：数组、指针、双指针
-
 #### 问题
 
 给你两个按 **非递减顺序** 排列的整数数组 `nums1` 和 `nums2`，另有两个整数 `m` 和 `n` ，分别表示 `nums1` 和 `nums2` 中的元素数目。
@@ -1268,8 +1244,6 @@ class Solution:
 
 
 ### 1018 - 二叉树的中序遍历<a id="p1018"></a>
-
-Tag：栈、树、深度优先遍历
 
 #### 问题
 
@@ -1351,8 +1325,6 @@ class Solution:
 
 ### 1019 - 相同的树<a id="p1019"></a>
 
-Tag：树、深度优先搜索、广度优先搜索、二叉树
-
 #### 问题
 
 给你两棵二叉树的根节点 `p` 和 `q` ，编写一个函数来检验这两棵树是否相同。
@@ -1412,8 +1384,6 @@ class Solution:
 
 ### 1020 - 对称二叉树<a id="p1020"></a>
 
-Tag：树、深度优先搜索、广度优先搜索、二叉树
-
 #### 问题
 
 给你一个二叉树的根节点 `root` ， 检查它是否轴对称。
@@ -1467,8 +1437,6 @@ class Solution:
 
 
 ### 1021 - 二叉树的最大深度<a id="p1021"></a>
-
-Tag：树、深度优先搜索、广度优先搜索、二叉树
 
 #### 问题
 
@@ -1524,8 +1492,6 @@ class Solution:
 
 
 ### 1022 - 将有序数组转换为二叉搜索树<a id="p1022"></a>
-
-Tag：树、二叉搜索树、分治、二叉树
 
 #### 问题
 
@@ -1592,8 +1558,6 @@ class Solution:
 
 
 ### 1023 - 平衡二叉树<a id="p1023"></a>
-
-Tag：树、深度优先搜索、二叉树
 
 #### 问题
 
@@ -1701,8 +1665,6 @@ class Solution:
 
 ### 1024 - 二叉树的最小深度<a id="p1024"></a>
 
-Tag：树、二叉树、深度优先搜索、广度优先搜索
-
 #### 问题
 
 给定一个二叉树，找出其最小深度。
@@ -1788,8 +1750,6 @@ class Solution:
 
 ### 1025 - 路径总和<a id="p1025"></a>
 
-Tag：树、二叉树、深度优先搜索、广度优先搜索
-
 #### 问题
 
 给你二叉树的根节点 `root` 和一个表示目标和的整数 `targetSum` 。判断该树中是否存在 **根节点到叶子节点** 的路径，这条路径上所有节点值相加等于目标和 `targetSum` 。如果存在，返回 `true` ；否则，返回 `false` 。
@@ -1859,8 +1819,6 @@ class Solution:
 
 ### 1026 - 杨辉三角<a id="p1026"></a>
 
-Tag：动态规划
-
 #### 问题
 
 给定一个非负整数 *`numRows`，*生成「杨辉三角」的前 *`numRows`* 行。
@@ -1915,8 +1873,6 @@ class Solution:
 
 
 ### 1027 - 杨辉三角 II<a id="p1027"></a>
-
-Tag：动态规划
 
 #### 问题
 
@@ -1975,8 +1931,6 @@ class Solution:
 
 
 ### 1028 - 买卖股票的最佳时机<a id="p1028"></a>
-
-Tag：动态规划
 
 #### 问题
 
@@ -2061,8 +2015,6 @@ class Solution:
 
 ### 1029 - 验证回文串<a id="p1029"></a>
 
-Tag：双指针、字符串
-
 #### 问题
 
 如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 **回文串** 。
@@ -2142,8 +2094,6 @@ class Solution:
 
 ### 1030 - 只出现一次的数字<a id="p1030"></a>
 
-Tag：位运算、数组
-
 #### 问题
 
 给你一个 **非空** 整数数组 `nums` ，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
@@ -2211,8 +2161,6 @@ class Solution:
 
 
 ### 1031 - 环形链表<a id="p1031"></a>
-
-Tag：哈希表、链表、双指针
 
 #### 问题
 
@@ -2293,5 +2241,233 @@ class Solution:
             if fast == slow:
                 return True
         return False
+```
+
+
+
+### 1032 - 二叉树的前序遍历<a id="p1032"></a>
+
+#### 问题
+
+给你二叉树的根节点 `root` ，返回它节点值的 **前序** 遍历。
+
+ 
+
+**示例 1：**
+
+![img](./assets/inorder_1-1709551183284-1.jpg)
+
+```
+输入：root = [1,null,2,3]
+输出：[1,2,3]
+```
+
+**示例 2：**
+
+```
+输入：root = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：root = [1]
+输出：[1]
+```
+
+**示例 4：**
+
+![img](./assets/inorder_5.jpg)
+
+```
+输入：root = [1,2]
+输出：[1,2]
+```
+
+**示例 5：**
+
+![img](./assets/inorder_4.jpg)
+
+```
+输入：root = [1,null,2]
+输出：[1,2]
+```
+
+ 
+
+**提示：**
+
+- 树中节点数目在范围 `[0, 100]` 内
+- `-100 <= Node.val <= 100`
+
+ 
+
+**进阶：**递归算法很简单，你可以通过迭代算法完成吗？
+
+
+
+#### 解法
+
+递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        result = []
+        def preorder(root: Optional[TreeNode]):
+            if not root:
+                return
+            result.append(root.val)
+            preorder(root.left)
+            preorder(root.right)
+        preorder(root)
+        return result
+```
+
+
+
+### 1033 - 二叉树的后序遍历<a id="p1033"></a>
+
+#### 问题
+
+给你一棵二叉树的根节点 `root` ，返回其节点值的 **后序遍历** 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/pre1.jpg)
+
+```
+输入：root = [1,null,2,3]
+输出：[3,2,1]
+```
+
+**示例 2：**
+
+```
+输入：root = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：root = [1]
+输出：[1]
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数目在范围 `[0, 100]` 内
+- `-100 <= Node.val <= 100`
+
+ 
+
+**进阶：**递归算法很简单，你可以通过迭代算法完成吗？
+
+
+
+#### 解法
+
+递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def postorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        lst = []
+        def posoder(root: Optional[TreeNode]):
+            if root and root.left:
+                posoder(root.left)
+            if root and root.right:
+                posoder(root.right)
+            if root:
+                lst.append(root.val)
+        posoder(root)
+        return lst
+```
+
+
+
+### 1034 - 两数之和<a id="p1034"></a>
+
+#### 问题
+
+给你两个 **非空** 的链表，表示两个非负的整数。它们每位数字都是按照 **逆序** 的方式存储的，并且每个节点只能存储 **一位** 数字。
+
+请你将两个数相加，并以相同形式返回一个表示和的链表。
+
+你可以假设除了数字 0 之外，这两个数都不会以 0 开头。
+
+ 
+
+**示例 1：**
+
+![img](./assets/addtwonumber1.jpg)
+
+```
+输入：l1 = [2,4,3], l2 = [5,6,4]
+输出：[7,0,8]
+解释：342 + 465 = 807.
+```
+
+**示例 2：**
+
+```
+输入：l1 = [0], l2 = [0]
+输出：[0]
+```
+
+**示例 3：**
+
+```
+输入：l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]
+输出：[8,9,9,9,0,0,0,1]
+```
+
+
+
+#### 解法
+
+思路
+将两个链表转换成长度相等的两数相加，在短链表前补0，例如123+1转换成123+001=124。而由于本题中链表是逆序存储数字的，因此是在链表的尾部补0。之后，类似于手写竖式加法，逐位相加，记录每位的进位与余数即可。
+
+解法
+在链表题中，常用的方法是先定义一个dummy节点，这样可以避免对头节点的特殊处理。需要注意的是，在遍历结束后，如果carry不为0，需要在链表最后增加一个节点，例如99+01=100，结果100中的1就是最后的进位。
+
+```python
+# 增补法
+class Solution:
+    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+        result = ListNode()
+        res = result
+        jw = 0
+        while l1 or l2:
+            sum = (l1.val if l1 else 0) + (l2.val if l2 else 0) + jw
+            jw = sum // 10
+            res.next = ListNode(sum - 10 if sum >= 10 else sum)
+            res = res.next
+            if l1:
+                l1 = l1.next
+            if l2:
+                l2 = l2.next
+        if jw:
+            res.next = ListNode(1)
+        return result.next
 ```
 
