@@ -24,6 +24,12 @@ LeetCode：100x
 
 [1029 - 验证回文串](#p1029)
 
+[1036 - 反转字符串](#p1036)
+
+[1037 - 反转字符串 II](<a id="p1037"></a>)
+
+[1039 - 密钥格式化](#p1039)
+
 
 
 #### 链表
@@ -92,6 +98,10 @@ LeetCode：100x
 
 [1031 - 环形链表](#p1031)
 
+[1036 - 反转字符串](#p1036)
+
+[1038 - 有序数组的平方](#p1038)
+
 
 
 #### 动态规划
@@ -123,6 +133,8 @@ LeetCode：100x
 [1010 - 搜索插入位置](#p1010)
 
 [1014 - x的平方根](#p1014)
+
+[1035 - 二分查找](#p1035)
 
 
 
@@ -756,6 +768,21 @@ class Solution:
                 b += 1
             a += 1
         return b
+    
+# 快慢指针
+class Solution:
+    def removeElement(self, nums: List[int], val: int) -> int:
+        # 快慢指针
+        fast = 0  # 快指针
+        slow = 0  # 慢指针
+        size = len(nums)
+        while fast < size:  # 不加等于是因为，a = size 时，nums[a] 会越界
+            # slow 用来收集不等于 val 的值，如果 fast 对应值不等于 val，则把它与 slow 替换
+            if nums[fast] != val:
+                nums[slow] = nums[fast]
+                slow += 1
+            fast += 1
+        return slow
 ```
 
 
@@ -842,6 +869,8 @@ class Solution:
 
 #### 解法
 
+调库
+
 ```python
 class Solution:
     def searchInsert(self, nums: List[int], target: int) -> int:
@@ -849,6 +878,29 @@ class Solution:
             if target <= i:
                 return nums.index(i)
         return len(nums)
+```
+
+二分法
+
+问题：为什么最终返回left呢？
+
+答：while循环终止，说明找不到或者已经返回了索引。所以此时left所在的位置就是要插入的位置。
+
+```python
+class Solution:
+    def searchInsert(self, nums: List[int], target: int) -> int:
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            middle = (left + right) // 2
+
+            if nums[middle] < target:
+                left = middle + 1
+            elif nums[middle] > target:
+                right = middle - 1
+            else:
+                return middle
+        return left
 ```
 
 
@@ -2469,5 +2521,293 @@ class Solution:
         if jw:
             res.next = ListNode(1)
         return result.next
+```
+
+
+
+### 1035 - 二分查找<a id="p1035"></a>
+
+#### 问题
+
+给定一个 `n` 个元素有序的（升序）整型数组 `nums` 和一个目标值 `target` ，写一个函数搜索 `nums` 中的 `target`，如果目标值存在返回下标，否则返回 `-1`。
+
+
+**示例 1:**
+
+```
+输入: nums = [-1,0,3,5,9,12], target = 9
+输出: 4
+解释: 9 出现在 nums 中并且下标为 4
+```
+
+**示例 2:**
+
+```
+输入: nums = [-1,0,3,5,9,12], target = 2
+输出: -1
+解释: 2 不存在 nums 中因此返回 -1
+```
+
+
+
+#### 解法
+
+调库
+
+```python
+# 调库
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        return nums.index(target) if target in nums else -1
+```
+
+正常写法
+
+```python
+# 正常写法
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        lenth = len(nums)
+        head = lenth - 1
+        tail = 0
+        while True:
+            if head < tail:
+                return -1
+            mid = (head - tail) // 2 + tail
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] > target:
+                head = mid - 1
+            elif nums[mid] < target:
+                tail = mid + 1
+```
+
+
+
+### 1036 - 反转字符串<a id="p1036"></a>
+
+#### 问题
+
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 `s` 的形式给出。
+
+不要给另外的数组分配额外的空间，你必须**[原地](https://baike.baidu.com/item/原地算法)修改输入数组**、使用 O(1) 的额外空间解决这一问题。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = ["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+```
+
+**示例 2：**
+
+```
+输入：s = ["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+```
+
+
+
+#### 解法
+
+```python
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        """
+        Do not return anything, modify s in-place instead.
+        """
+        # 双指针
+        tail, head = 0, len(s) - 1
+        for i in range(head + 1):
+            if head <= tail:
+                break
+            temp = s[tail]
+            s[tail] = s[head]
+            s[head] = temp
+            tail, head = tail + 1, head - 1
+```
+
+
+
+### 1037 - 反转字符串 II<a id="p1037"></a>
+
+#### 问题
+
+给定一个字符串 `s` 和一个整数 `k`，从字符串开头算起，每计数至 `2k` 个字符，就反转这 `2k` 字符中的前 `k` 个字符。
+
+- 如果剩余字符少于 `k` 个，则将剩余字符全部反转。
+- 如果剩余字符小于 `2k` 但大于或等于 `k` 个，则反转前 `k` 个字符，其余字符保持原样。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "abcdefg", k = 2
+输出："bacdfeg"
+```
+
+**示例 2：**
+
+```
+输入：s = "abcd", k = 2
+输出："bacd"
+```
+
+
+
+#### 解法
+
+普通解法
+
+```python
+# 每隔着k个字符记录，反转偶数数
+class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        lst = []
+        temp = []
+        for i in range(len(s)):
+            if i % k == 0:
+                lst.append(temp)
+                temp = []
+            temp.append(s[i])
+        if temp:
+            lst.append(temp)
+        lst.pop(0)
+        result = ""
+        for i in range(len(lst)):
+            temp = ""
+            for char in lst[i]:
+                temp = temp + char
+            if i % 2 == 0:
+                result = result + temp[::-1]
+            else:
+                result = result + temp
+        return result
+```
+
+字符串拼接
+
+```python
+# 利用python对于字符串可操作的特性
+class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        s = s[k - 1::-1] + s[k:]
+        for i in range(2 * k, len(s), 2 * k):
+            s = s[0:i:] + s[i + k - 1:i - 1:-1] + s[i + k:len(s):]
+        return s
+```
+
+简写
+
+```python
+# 简写
+class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        return "".join(s[i:i + k][::(-1 if i // k % 2 == 0 else 1)] for i in range(0, len(s), k))
+```
+
+
+
+### 1038 - 有序数组的平方<a id="p1038"></a>
+
+#### 问题
+
+给你一个按 **非递减顺序** 排序的整数数组 `nums`，返回 **每个数字的平方** 组成的新数组，要求也按 **非递减顺序** 排序。
+
+
+
+**示例 1：**
+
+```
+输入：nums = [-4,-1,0,3,10]
+输出：[0,1,9,16,100]
+解释：平方后，数组变为 [16,1,0,9,100]
+排序后，数组变为 [0,1,9,16,100]
+```
+
+**示例 2：**
+
+```
+输入：nums = [-7,-3,2,3,11]
+输出：[4,9,9,49,121]
+```
+
+
+
+#### 解法
+
+```python
+class Solution:
+    def sortedSquares(self, nums: List[int]) -> List[int]:
+        # 调库
+        for i in range(len(nums)):
+            nums[i] *= nums[i]
+        nums.sort()
+        return nums
+
+        # 双指针
+        l, r, k = 0, len(nums) - 1, len(nums) - 1
+        result = [0] * len(nums)
+        while k >= 0:
+            if nums[l] * nums[l] >= nums[r] * nums[r]:
+                result[k] = nums[l] * nums[l]
+                l += 1
+            else:
+                result[k] = nums[r] * nums[r]
+                r -= 1
+            k -= 1
+        return result
+```
+
+
+
+### 1039 - 密钥格式化<a id="p1039"></a>
+
+#### 问题
+
+给定一个许可密钥字符串 `s`，仅由字母、数字字符和破折号组成。字符串由 `n` 个破折号分成 `n + 1` 组。你也会得到一个整数 `k` 。
+
+我们想要重新格式化字符串 `s`，使每一组包含 `k` 个字符，除了第一组，它可以比 `k` 短，但仍然必须包含至少一个字符。此外，两组之间必须插入破折号，并且应该将所有小写字母转换为大写字母。
+
+返回 *重新格式化的许可密钥* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：S = "5F3Z-2e-9-w", k = 4
+输出："5F3Z-2E9W"
+解释：字符串 S 被分成了两个部分，每部分 4 个字符；
+     注意，两个额外的破折号需要删掉。
+```
+
+**示例 2：**
+
+```
+输入：S = "2-5g-3-J", k = 2
+输出："2-5G-3J"
+解释：字符串 S 被分成了 3 个部分，按照前面的规则描述，第一部分的字符可以少于给定的数量，其余部分皆为 2 个字符。
+```
+
+
+
+#### 解法
+
+调库
+
+```python
+# 字符串
+class Solution:
+    def licenseKeyFormatting(self, s: str, k: int) -> str:
+        s = s.upper().replace('-', '')[::-1]
+        nub = 0
+        res = ''
+        for i in range(0, len(s), k):
+            res += s[i:i+k] + '-'
+        return res[::-1].lstrip('-')
 ```
 
