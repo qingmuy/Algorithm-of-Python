@@ -40,6 +40,10 @@ LeetCode：100x
 
 [1031 - 环形链表](#p1031)
 
+[1043 - 设计链表](#p1043)
+
+[1044 - 反转链表](#p1044)
+
 
 
 #### 栈
@@ -136,6 +140,8 @@ LeetCode：100x
 
 [1035 - 二分查找](#p1035)
 
+[1040 - 长度最小的子数组](#p1040)
+
 
 
 #### 位运算
@@ -143,6 +149,24 @@ LeetCode：100x
 [1013 - 二进制求和](#p1013)
 
 [1030：只出现一次的数字](#p1030)
+
+
+
+#### 滑动窗口
+
+[1040 - 长度最小的子数组](#p1040)
+
+
+
+#### 前缀和
+
+[1040 - 长度最小的子数组](#p1040)
+
+
+
+#### 模拟
+
+[1041 - 螺旋矩阵 II](#p1041)
 
 
 
@@ -2809,5 +2833,431 @@ class Solution:
         for i in range(0, len(s), k):
             res += s[i:i+k] + '-'
         return res[::-1].lstrip('-')
+```
+
+
+
+### 1040 - 长度最小的子数组<a id="p1040"></a>
+
+#### 问题
+
+给定一个含有 `n` 个正整数的数组和一个正整数 `target` **。**
+
+找出该数组中满足其总和大于等于 `target` 的长度最小的 **连续子数组** `[numsl, numsl+1, ..., numsr-1, numsr]` ，并返回其长度**。**如果不存在符合条件的子数组，返回 `0` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：target = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+```
+
+**示例 2：**
+
+```
+输入：target = 4, nums = [1,4,4]
+输出：1
+```
+
+**示例 3：**
+
+```
+输入：target = 11, nums = [1,1,1,1,1,1,1,1]
+输出：0
+```
+
+
+
+#### 解法
+
+滑动窗口方法
+
+窗口的起始位置如何移动：如果当前窗口的值大于s了，窗口就要向前移动了（也就是该缩小了）。
+
+窗口的结束位置如何移动：窗口的结束位置就是遍历数组的指针，也就是for循环里的索引。
+
+**滑动窗口的精妙之处在于根据当前子序列和大小的情况，不断调节子序列的起始位置。**
+
+内部的while也是高明的地方：当累加值大于目标值后的处理，即左侧指针可能不止要移动一次。
+
+```python
+class Solution:
+    def minSubArrayLen(self, s: int, nums: List[int]) -> int:
+        l = len(nums)
+        left = 0
+        right = 0
+        min_len = float('inf')
+        cur_sum = 0 #当前的累加值
+        
+        while right < l:
+            cur_sum += nums[right]
+            
+            while cur_sum >= s: # 当前累加值大于目标值
+                min_len = min(min_len, right - left + 1)
+                cur_sum -= nums[left]
+                left += 1
+            
+            right += 1
+        
+        return min_len if min_len != float('inf') else 0
+```
+
+
+
+### 1041 - 螺旋矩阵 II<a id="#p1041"></a>
+
+#### 问题
+
+给你一个正整数 `n` ，生成一个包含 `1` 到 `n2` 所有元素，且元素按顺时针顺序螺旋排列的 `n x n` 正方形矩阵 `matrix` 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/spiraln.jpg)
+
+```
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]]
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：[[1]]
+```
+
+
+
+#### 解法
+
+```python
+# 模拟过程
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        # 外层每次遍历的长度实际上是n - 1
+        # 遍历完一层之后，下一层遍历的长度为 - 1
+        # 模拟的顺序为：右  下  左  上
+        max_lenth = n - 1    # 阈值
+        result = [[-1 for _ in range(n)] for _ in range(n)]   # 初始化列表
+        x, y = 0, 0     # 代表遍历坐标
+        num = 1     # 需要叠加的值
+        while max_lenth > 0:
+            # 向右遍历
+            for i in range(max_lenth):
+                result[x][y] = num
+                num += 1
+                y += 1
+            # 向下遍历
+            for i in range(max_lenth):
+                result[x][y] = num
+                num += 1
+                x += 1
+            # 向左遍历
+            for i in range(max_lenth):
+                result[x][y] = num
+                num += 1
+                y -= 1
+            # 向上遍历
+            for i in range(max_lenth):
+                result[x][y] = num
+                num += 1
+                x -= 1
+            x += 1
+            y += 1
+            max_lenth -= 2
+        if n % 2:
+            result[n // 2][n // 2] = num
+        return result
+```
+
+
+
+### 1042 - 移除链表元素<a id="p1042"></a>
+
+#### 问题
+
+给你一个链表的头节点 `head` 和一个整数 `val` ，请你删除链表中所有满足 `Node.val == val` 的节点，并返回 **新的头节点** 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/removelinked-list.jpg)
+
+```
+输入：head = [1,2,6,3,4,5,6], val = 6
+输出：[1,2,3,4,5]
+```
+
+**示例 2：**
+
+```
+输入：head = [], val = 1
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [7,7,7,7], val = 7
+输出：[]
+```
+
+
+
+#### 解法
+
+```python
+class Solution:
+    def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
+        if not head:
+            return None
+        result = ListNode(next = head)
+        head = result
+        while head.next:
+            if head.next.val == val:
+                head.next = head.next.next
+            else:
+                head = head.next
+        
+        return result.next
+```
+
+
+
+### 1043 - 设计链表<a id="p1043"></a>
+
+#### 问题
+
+你可以选择使用单链表或者双链表，设计并实现自己的链表。
+
+单链表中的节点应该具备两个属性：`val` 和 `next` 。`val` 是当前节点的值，`next` 是指向下一个节点的指针/引用。
+
+如果是双向链表，则还需要属性 `prev` 以指示链表中的上一个节点。假设链表中的所有节点下标从 **0** 开始。
+
+实现 `MyLinkedList` 类：
+
+- `MyLinkedList()` 初始化 `MyLinkedList` 对象。
+- `int get(int index)` 获取链表中下标为 `index` 的节点的值。如果下标无效，则返回 `-1` 。
+- `void addAtHead(int val)` 将一个值为 `val` 的节点插入到链表中第一个元素之前。在插入完成后，新节点会成为链表的第一个节点。
+- `void addAtTail(int val)` 将一个值为 `val` 的节点追加到链表中作为链表的最后一个元素。
+- `void addAtIndex(int index, int val)` 将一个值为 `val` 的节点插入到链表中下标为 `index` 的节点之前。如果 `index` 等于链表的长度，那么该节点会被追加到链表的末尾。如果 `index` 比长度更大，该节点将 **不会插入** 到链表中。
+- `void deleteAtIndex(int index)` 如果下标有效，则删除链表中下标为 `index` 的节点。
+
+ 
+
+**示例：**
+
+```
+输入
+["MyLinkedList", "addAtHead", "addAtTail", "addAtIndex", "get", "deleteAtIndex", "get"]
+[[], [1], [3], [1, 2], [1], [1], [1]]
+输出
+[null, null, null, null, 2, null, 3]
+
+解释
+MyLinkedList myLinkedList = new MyLinkedList();
+myLinkedList.addAtHead(1);
+myLinkedList.addAtTail(3);
+myLinkedList.addAtIndex(1, 2);    // 链表变为 1->2->3
+myLinkedList.get(1);              // 返回 2
+myLinkedList.deleteAtIndex(1);    // 现在，链表变为 1->3
+myLinkedList.get(1);              // 返回 3
+```
+
+
+
+#### 解法
+
+```python
+class Node:
+    def __init__(self, val = 0, next = None) -> None:
+        self.val = val
+        self.next = next
+
+class MyLinkedList:
+
+    def __init__(self):
+        prenode = Node()
+        self.head = prenode
+
+    def get(self, index: int) -> int:
+        # 根据索引获取当前的值
+        headnode = self.head.next
+        while index > 0:
+            if not headnode:
+                return -1
+            headnode = headnode.next
+            index -= 1
+        if not headnode:
+            return -1
+        return headnode.val
+
+    def addAtHead(self, val: int) -> None:
+        # 增添头节点
+        prenode = self.head
+        temp = Node(val=val)
+        temp.next = prenode.next
+        prenode.next = temp
+
+    def addAtTail(self, val: int) -> None:
+        # 添加尾节点
+        headnode = self.head
+        while headnode and headnode.next:
+            headnode = headnode.next
+        headnode.next = Node(val = val)
+
+    def addAtIndex(self, index: int, val: int) -> None:
+        # 根据索引添加元素：如果 index 比长度更大，该节点将 不会插入 到链表中。
+        headnode = self.head    # 此处代表虚拟节点
+        for i in range(index):
+            if not headnode:
+                return
+            headnode = headnode.next
+        if not headnode:
+            return
+        temp = Node(val, headnode.next if headnode.next else None)
+        headnode.next = temp
+        
+
+    def deleteAtIndex(self, index: int) -> None:
+        # 根据索引删除元素：如果下标有效，则删除链表中下标为 index 的节点。
+        # 三种情况：删除正常元素、删除最后一个元素、删除越界节点
+        headnode = self.head    # 此处代表虚拟节点
+        for i in range(index):
+            if not headnode:
+                return
+            headnode = headnode.next
+        if not headnode:
+            return
+        elif headnode and not headnode.next:
+            headnode.next = None
+        else:
+            headnode.next = headnode.next.next
+```
+
+
+
+### 1044 - 反转链表<a id="p1043"></a>
+
+#### 问题
+
+给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
+
+ 
+
+**示例 1：**
+
+![img](./assets/rev1ex1.jpg)
+
+```
+输入：head = [1,2,3,4,5]
+输出：[5,4,3,2,1]
+```
+
+**示例 2：**
+
+![img](./assets/rev1ex2.jpg)
+
+```
+输入：head = [1,2]
+输出：[2,1]
+```
+
+**示例 3：**
+
+```
+输入：head = []
+输出：[]
+```
+
+
+
+#### 解法
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if not head or not head.next:
+            return head
+        # 三指针
+        next_node = head.next
+        head.next = None
+        while next_node:
+            temp = next_node.next
+            next_node.next = head
+            head = next_node
+            next_node = temp
+        return head
+```
+
+
+
+### 1045 - 两两交换链表中的节点<a id="p1045"></a>
+
+#### 问题
+
+给你一个链表，两两交换其中相邻的节点，并返回交换后链表的头节点。你必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）。
+
+ 
+
+**示例 1：**
+
+![img](./assets/swap_ex1.jpg)
+
+```
+输入：head = [1,2,3,4]
+输出：[2,1,4,3]
+```
+
+**示例 2：**
+
+```
+输入：head = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [1]
+输出：[1]
+```
+
+
+
+#### 解法
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # while循环判断条件，遇到head为空或next为空终止即可
+        if not head or not head.next:
+            return head
+        result = head.next
+        last_temp = ListNode()
+        while head and head.next:
+            temp = head.next
+            last_temp.next = temp
+            head.next = temp.next
+            last_temp = head
+            temp.next = head
+            head = head.next
+        return result
 ```
 
