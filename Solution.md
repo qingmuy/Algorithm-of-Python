@@ -30,6 +30,10 @@ LeetCode：100x
 
 [1039 - 密钥格式化](#p1039)
 
+[1049 - 有效的字母异位](#p1049)
+
+[1053 - 赎金信](#p1053)
+
 
 
 #### 链表
@@ -43,6 +47,12 @@ LeetCode：100x
 [1043 - 设计链表](#p1043)
 
 [1044 - 反转链表](#p1044)
+
+[1046 - 删除链表的倒数第N个结点](#p1046)
+
+[1047 - 链表相交](#p1047)
+
+
 
 
 
@@ -84,6 +94,16 @@ LeetCode：100x
 
 [1003 - 罗马数字转整数](#p1003)
 
+[1049 - 有效的字母异位](#p1049)
+
+[1050 - 两个数组的交集](#p1050)
+
+[1051 - 快乐数](#p1051)
+
+[1052 - 四数相加 II](#p1052)
+
+[1053 - 赎金信](#p1053)
+
 
 
 ### 解题方法
@@ -105,6 +125,14 @@ LeetCode：100x
 [1036 - 反转字符串](#p1036)
 
 [1038 - 有序数组的平方](#p1038)
+
+[1046 - 删除链表的倒数第N个结点](#p1046)
+
+[1047 - 链表相交](#p1047)
+
+[1054 - 三数之和](#p1054)
+
+[1055 - 四数之和](#p1055)
 
 
 
@@ -210,6 +238,8 @@ LeetCode：100x
 
 #### 解法
 
+暴力解法
+
 ```python
 # 双层遍历
 # 内部设置判断条件if
@@ -233,6 +263,21 @@ class Solution:
     同时存在index方法：获取某个元素在列表中的索引（可指定范围，默认获取第一个相同的值的索引）
 '''
 ```
+
+字典法
+
+```python
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        records = {}
+        for index, num in enumerate(nums):
+            if (target - num) in records:
+                return [index, records[target - num]]
+            else:
+                records[num] = index
+```
+
+
 
 
 
@@ -3259,5 +3304,816 @@ class Solution:
             temp.next = head
             head = head.next
         return result
+```
+
+
+
+### 1046 - 删除链表的倒数第N个节点<a id="p1046"></a>
+
+#### 问题
+
+给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/remove_ex1.jpg)
+
+```
+输入：head = [1,2,3,4,5], n = 2
+输出：[1,2,3,5]
+```
+
+**示例 2：**
+
+```
+输入：head = [1], n = 1
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [1,2], n = 1
+输出：[1]
+```
+
+
+
+#### 解法
+
+快慢指针
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+        # fast要比slow快 n + 1 步
+        Prenode = ListNode(next = head)
+        result = Prenode
+        fast = head
+        while n - 1:
+            fast = fast.next
+            n = n - 1
+        while fast.next:
+            Prenode = Prenode.next
+            fast = fast.next
+        Prenode.next = Prenode.next.next
+        return result.next
+```
+
+
+
+### 1047 - 链表相交<a id="p1046"></a>
+
+#### 问题
+
+给你两个单链表的头节点 `headA` 和 `headB` ，请你找出并返回两个单链表相交的起始节点。如果两个链表没有交点，返回 `null` 。
+
+图示两个链表在节点 `c1` 开始相交**：**
+
+[![img](./assets/160_statement.png)](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)
+
+题目数据 **保证** 整个链式结构中不存在环。
+
+**注意**，函数返回结果后，链表必须 **保持其原始结构** 。
+
+ 
+
+**示例 1：**
+
+[![img](./assets/160_example_1.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_1.png)
+
+```
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+输出：Intersected at '8'
+解释：相交节点的值为 8 （注意，如果两个链表相交则不能为 0）。
+从各自的表头开始算起，链表 A 为 [4,1,8,4,5]，链表 B 为 [5,0,1,8,4,5]。
+在 A 中，相交节点前有 2 个节点；在 B 中，相交节点前有 3 个节点。
+```
+
+**示例 2：**
+
+[![img](./assets/160_example_2.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_2.png)
+
+```
+输入：intersectVal = 2, listA = [0,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+输出：Intersected at '2'
+解释：相交节点的值为 2 （注意，如果两个链表相交则不能为 0）。
+从各自的表头开始算起，链表 A 为 [0,9,1,2,4]，链表 B 为 [3,2,4]。
+在 A 中，相交节点前有 3 个节点；在 B 中，相交节点前有 1 个节点。
+```
+
+**示例 3：**
+
+[![img](./assets/160_example_3.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_3.png)
+
+```
+输入：intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+输出：null
+解释：从各自的表头开始算起，链表 A 为 [2,6,4]，链表 B 为 [1,5]。
+由于这两个链表不相交，所以 intersectVal 必须为 0，而 skipA 和 skipB 可以是任意值。
+这两个链表不相交，因此返回 null 。
+```
+
+
+
+#### 解法
+
+求长度后，从距离尾部等长的位置遍历
+
+代码随想录：
+
+简单来说，就是求两个链表交点节点的**指针**。 这里同学们要注意，交点不是数值相等，而是指针相等。
+
+为了方便举例，假设节点元素数值相等，则节点指针相等。
+
+看如下两个链表，目前curA指向链表A的头结点，curB指向链表B的头结点：
+
+![面试题02.07.链表相交_1](./assets/面试题02.07.链表相交_1.png)
+
+我们求出两个链表的长度，并求出两个链表长度的差值，然后让curA移动到，和curB 末尾对齐的位置，如图：
+
+![面试题02.07.链表相交_2](./assets/面试题02.07.链表相交_2.png)
+
+此时我们就可以比较curA和curB是否相同，如果不相同，同时向后移动curA和curB，如果遇到curA == curB，则找到交点。
+
+否则循环退出返回空指针。
+
+```python
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* curA = headA;
+        ListNode* curB = headB;
+        int lenA = 0, lenB = 0;
+        while (curA != NULL) { // 求链表A的长度
+            lenA++;
+            curA = curA->next;
+        }
+        while (curB != NULL) { // 求链表B的长度
+            lenB++;
+            curB = curB->next;
+        }
+        curA = headA;
+        curB = headB;
+        // 让curA为最长链表的头，lenA为其长度
+        if (lenB > lenA) {
+            swap (lenA, lenB);
+            swap (curA, curB);
+        }
+        // 求长度差
+        int gap = lenA - lenB;
+        // 让curA和curB在同一起点上（末尾位置对齐）
+        while (gap--) {
+            curA = curA->next;
+        }
+        // 遍历curA 和 curB，遇到相同则直接返回
+        while (curA != NULL) {
+            if (curA == curB) {
+                return curA;
+            }
+            curA = curA->next;
+            curB = curB->next;
+        }
+        return NULL;
+    }
+};
+```
+
+莫比乌斯环：一个链表到尾部后反转到另一个链表的头部，最终即便两个链表不等长，也会弥补。
+
+```python
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        # 处理边缘情况
+        if not headA or not headB:
+            return None
+        
+        # 在每个链表的头部初始化两个指针
+        pointerA = headA
+        pointerB = headB
+        
+        # 遍历两个链表直到指针相交
+        while pointerA != pointerB:
+            # 将指针向前移动一个节点
+            pointerA = pointerA.next if pointerA else headB
+            pointerB = pointerB.next if pointerB else headA
+        
+        # 如果相交，指针将位于交点节点，如果没有交点，值为None
+        return pointerA
+```
+
+
+
+### 1048 - 环形链表 II<a id="p1048"></a>
+
+#### 问题
+
+给定一个链表的头节点  `head` ，返回链表开始入环的第一个节点。 *如果链表无环，则返回 `null`。*
+
+如果链表中有某个节点，可以通过连续跟踪 `next` 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 `pos` 来表示链表尾连接到链表中的位置（**索引从 0 开始**）。如果 `pos` 是 `-1`，则在该链表中没有环。**注意：`pos` 不作为参数进行传递**，仅仅是为了标识链表的实际情况。
+
+**不允许修改** 链表。
+
+
+
+ 
+
+**示例 1：**
+
+![img](./assets/circularlinkedlist-1709788115895-15.png)
+
+```
+输入：head = [3,2,0,-4], pos = 1
+输出：返回索引为 1 的链表节点
+解释：链表中有一个环，其尾部连接到第二个节点。
+```
+
+**示例 2：**
+
+![img](./assets/circularlinkedlist_test2-1709788115896-17.png)
+
+```
+输入：head = [1,2], pos = 0
+输出：返回索引为 0 的链表节点
+解释：链表中有一个环，其尾部连接到第一个节点。
+```
+
+**示例 3：**
+
+![img](./assets/circularlinkedlist_test3-1709788115896-19.png)
+
+```
+输入：head = [1], pos = -1
+输出：返回 null
+解释：链表中没有环。
+```
+
+
+
+#### 解法
+
+暴力解法：遍历一遍，将所有的结点加入哈希表，对比即可
+
+```python
+class Solution:
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # 暴力，使用哈希表
+        hashset = set()
+        while head:
+            if head in hashset:
+                return head
+            else:
+                hashset.add(head)
+            head = head.next
+        return None
+```
+
+快慢指针，经过数学推导：找到相遇结点之后，从起始结点和相遇结点各自发出一个指针，相遇后必定为环形入口。
+
+```python
+class Solution:
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # 快慢指针
+        if not head:
+            return None
+        fast = slow = Prenode = ListNode(next = head)
+        love_point = None
+        while fast and fast.next and fast.next.next:
+            if fast == slow and fast != Prenode:
+                love_point = slow
+                while Prenode != love_point:
+                    Prenode = Prenode.next
+                    love_point = love_point.next
+                return love_point
+            slow = slow.next
+            fast = fast.next.next
+
+        return None
+```
+
+
+
+### 1049 - 有效的字母异位词<a id="p1049"></a>
+
+#### 问题
+
+给定两个字符串 `*s*` 和 `*t*` ，编写一个函数来判断 `*t*` 是否是 `*s*` 的字母异位词。
+
+**注意：**若 `*s*` 和 `*t*` 中每个字符出现的次数都相同，则称 `*s*` 和 `*t*` 互为字母异位词。
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "anagram", t = "nagaram"
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: s = "rat", t = "car"
+输出: false
+```
+
+
+
+#### 解法
+
+哈希表对比：即便键值对的位置不同但是仍然是一样的。
+
+```python
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        # 使用字典处理，即便是字典键值对位置不同依然是相等的
+        dirt1, dirt2 = {}, {}
+        for i in s:
+            if i in dirt1:
+                dirt1[i] = dirt1[i] + 1
+            else:
+                dirt1.setdefault(i, 1)
+
+        for i in t:
+            if i in dirt2:
+                dirt2[i] = dirt2[i] + 1
+            else:
+                dirt2.setdefault(i, 1)
+
+        return dirt1 == dirt2
+```
+
+使用`collections.defaultdict()` 类
+
+```python
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        from collections import defaultdict
+        
+        s_dict = defaultdict(int)
+        t_dict = defaultdict(int)
+        for x in s:
+            s_dict[x] += 1
+        
+        for x in t:
+            t_dict[x] += 1
+        return s_dict == t_dict
+```
+
+
+
+### 1050 - 两个数组的交集<a id="p1050"></a>
+
+#### 问题
+
+给定两个数组 `nums1` 和 `nums2` ，返回 *它们的交集* 。输出结果中的每个元素一定是 **唯一** 的。我们可以 **不考虑输出结果的顺序** 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,2,2,1], nums2 = [2,2]
+输出：[2]
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+输出：[9,4]
+解释：[4,9] 也是可通过的
+```
+
+
+
+#### 解法
+
+普通暴力解法
+
+```python
+class Solution:
+    def intersection(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        # 暴力
+        new_set = set()
+        for i in nums1:
+            if i in nums2:
+                new_set.add(i)
+        return list(new_set)
+```
+
+集合直接取交集操作
+
+```python
+class Solution:
+    def intersection(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        # set之间使用位运算符可以实现并集、交集的操作
+        return list(set(nums1) & set(nums2))
+```
+
+
+
+### 1051 - 快乐数<a id="p1051"></a>
+
+#### 问题
+
+编写一个算法来判断一个数 `n` 是不是快乐数。
+
+**「快乐数」** 定义为：
+
+- 对于一个正整数，每一次将该数替换为它每个位置上的数字的平方和。
+- 然后重复这个过程直到这个数变为 1，也可能是 **无限循环** 但始终变不到 1。
+- 如果这个过程 **结果为** 1，那么这个数就是快乐数。
+
+如果 `n` 是 *快乐数* 就返回 `true` ；不是，则返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 19
+输出：true
+解释：
+12 + 92 = 82
+82 + 22 = 68
+62 + 82 = 100
+12 + 02 + 02 = 1
+```
+
+**示例 2：**
+
+```
+输入：n = 2
+输出：false
+```
+
+
+
+#### 解法
+
+```python
+class Solution:
+    def isHappy(self, n: int) -> bool:
+        # 经过数学演算，如果是无限循环，也是有规律的循环：即还会回到最初值
+        lst = [n]
+        while True:
+            next_num = 0
+            if n == 1:
+                return True
+            for i in str(n):
+                next_num += int(i) * int(i)
+            n = next_num
+            if next_num not in lst:
+                lst.append(next_num)
+            else:
+                return False
+```
+
+
+
+### 1052 - 四数相加<a id="p1052"></a>
+
+#### 问题
+
+给你四个整数数组 `nums1`、`nums2`、`nums3` 和 `nums4` ，数组长度都是 `n` ，请你计算有多少个元组 `(i, j, k, l)` 能满足：
+
+- `0 <= i, j, k, l < n`
+- `nums1[i] + nums2[j] + nums3[k] + nums4[l] == 0`
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,2], nums2 = [-2,-1], nums3 = [-1,2], nums4 = [0,2]
+输出：2
+解释：
+两个元组如下：
+1. (0, 0, 0, 1) -> nums1[0] + nums2[0] + nums3[0] + nums4[1] = 1 + (-2) + (-1) + 2 = 0
+2. (1, 1, 0, 0) -> nums1[1] + nums2[1] + nums3[0] + nums4[0] = 2 + (-1) + (-1) + 0 = 0
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [0], nums2 = [0], nums3 = [0], nums4 = [0]
+输出：1
+```
+
+
+
+#### 解法
+
+分段处理，将A、B数组的和统计，和作为键，出现次数为值；以相同的方式遍历C、D，一旦发现和的负数存在于字典中就将对应的值累加到结果。
+
+```python
+class Solution:
+    def fourSumCount(self, nums1: List[int], nums2: List[int], nums3: List[int], nums4: List[int]) -> int:
+        # 转换思路，先统计a + b的和出现的次数
+        # 再统计c + d的和的次数
+        # 将相减为0的次数相乘，累加
+        dirt1, dirt2 = {}, {}
+        result = 0
+        for i in nums1:
+            for j in nums2:
+                temp = i + j
+                if temp in dirt1:
+                    dirt1[temp] += 1
+                else:
+                    dirt1[temp] = 1
+
+        for k in nums3:
+            for l in nums4:
+                temp = -(k + l)
+                if temp in dirt1:
+                    result += dirt1[temp]
+
+        return result
+```
+
+
+
+### 1053 - 赎金信<a id="p1053"></a>
+
+#### 问题
+
+给你两个字符串：`ransomNote` 和 `magazine` ，判断 `ransomNote` 能不能由 `magazine` 里面的字符构成。
+
+如果可以，返回 `true` ；否则返回 `false` 。
+
+`magazine` 中的每个字符只能在 `ransomNote` 中使用一次。
+
+ 
+
+**示例 1：**
+
+```
+输入：ransomNote = "a", magazine = "b"
+输出：false
+```
+
+**示例 2：**
+
+```
+输入：ransomNote = "aa", magazine = "ab"
+输出：false
+```
+
+**示例 3：**
+
+```
+输入：ransomNote = "aa", magazine = "aab"
+输出：true
+```
+
+
+
+#### 解法
+
+将magazine出现的字符以及次数记录在字典中，遍历rensonNote中的字符，如果不存在就返回否，如果字典的值为0就删掉这个键值对。
+
+```python
+class Solution:
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        records = dict()
+        for i in magazine:
+            records[i] = records.get(i, 0) + 1
+        for i in ransomNote:
+            if i not in records:
+                return False
+            records[i] = records.get(i, 0) - 1
+            if records[i] == 0:
+                records.pop(i)
+        return True
+```
+
+
+
+### 1054 - 三数之和<a id="p1054"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` ，判断是否存在三元组 `[nums[i], nums[j], nums[k]]` 满足 `i != j`、`i != k` 且 `j != k` ，同时还满足 `nums[i] + nums[j] + nums[k] == 0` 。请
+
+你返回所有和为 `0` 且不重复的三元组。
+
+**注意：**答案中不可以包含重复的三元组。
+
+ 
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [-1,0,1,2,-1,-4]
+输出：[[-1,-1,2],[-1,0,1]]
+解释：
+nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0 。
+nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0 。
+nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0 。
+不同的三元组是 [-1,0,1] 和 [-1,-1,2] 。
+注意，输出的顺序和三元组的顺序并不重要。
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,1,1]
+输出：[]
+解释：唯一可能的三元组和不为 0 。
+```
+
+**示例 3：**
+
+```
+输入：nums = [0,0,0]
+输出：[[0,0,0]]
+解释：唯一可能的三元组和为 0 。
+```
+
+
+
+#### 解法
+
+双指针
+
+代码随想录：
+
+![15.三数之和](./assets/15.三数之和.gif)
+
+拿这个nums数组来举例，首先将数组排序，然后有一层for循环，i从下标0的地方开始，同时定一个下标left 定义在i+1的位置上，定义下标right 在数组结尾的位置上。
+
+依然还是在数组中找到 abc 使得a + b +c =0，我们这里相当于 a = nums[i]，b = nums[left]，c = nums[right]。
+
+接下来如何移动left 和right呢， 如果nums[i] + nums[left] + nums[right] > 0 就说明 此时三数之和大了，因为数组是排序后了，所以right下标就应该向左移动，这样才能让三数之和小一些。
+
+如果 nums[i] + nums[left] + nums[right] < 0 说明 此时 三数之和小了，left 就向右移动，才能让三数之和大一些，直到left与right相遇为止。
+
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        
+        n=len(nums)
+        res=[]
+        if not nums:
+            return []
+        nums.sort()
+        res=[]
+        for i in range(n):
+            if(nums[i]>0):
+                return res
+            if(i>0 and nums[i]==nums[i-1]):
+                continue
+            L=i+1
+            R=n-1
+            while(L<R):
+                if(nums[i]+nums[L]+nums[R]==0):
+                    res.append([nums[i],nums[L],nums[R]])
+                    while(L<R and nums[L]==nums[L+1]):
+                        L=L+1
+                    while(L<R and nums[R]==nums[R-1]):
+                        R=R-1
+                    L=L+1
+                    R=R-1
+                elif(nums[i]+nums[L]+nums[R]>0):
+                    R=R-1
+                else:
+                    L=L+1
+        return res
+```
+
+
+
+### 1055 - 四数之和<a id="p1054"></a>
+
+#### 问题
+
+给你一个由 `n` 个整数组成的数组 `nums` ，和一个目标值 `target` 。请你找出并返回满足下述全部条件且**不重复**的四元组 `[nums[a], nums[b], nums[c], nums[d]]` （若两个四元组元素一一对应，则认为两个四元组重复）：
+
+- `0 <= a, b, c, d < n`
+- `a`、`b`、`c` 和 `d` **互不相同**
+- `nums[a] + nums[b] + nums[c] + nums[d] == target`
+
+你可以按 **任意顺序** 返回答案 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,0,-1,0,-2,2], target = 0
+输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [2,2,2,2,2], target = 8
+输出：[[2,2,2,2]]
+```
+
+
+
+#### 解法
+
+双指针去重
+
+与[1054 - 三数之和](#p1054)类似，叠了两层for循环；而且值得关注的是优化部分的代码:
+
+```python
+if x + nums[i + 1] + nums[i + 2] + nums[i + 3] > target:  # 优化一
+    break
+if x + nums[-3] + nums[-2] + nums[-1] < target:  # 优化二
+    continue
+```
+
+这一部分的含义是：由于数组是被排序过的，所以当初始的最小元素和大于target，说明整体不需要再循环了，因为后续的值只会更大；而如果当前最大的值仍然比target小，就将指针向右移动。(这一部分三层和两层是一样的)
+
+```python
+class Solution:
+    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
+        # 难点在于去重
+        lenth = len(nums)
+        nums.sort()
+        ans = []
+        for i in range(lenth - 3):
+            x = nums[i]
+            # 去重
+            if i and nums[i] == nums[i - 1]:
+                continue
+            if x + nums[i + 1] + nums[i + 2] + nums[i + 3] > target:  # 优化一
+                break
+            if x + nums[-3] + nums[-2] + nums[-1] < target:  # 优化二
+                continue
+            for j in range(i + 1, lenth - 2):
+                y = nums[j]
+                if j > i + 1 and y == nums[j - 1]:  # 跳过重复数字
+                    continue
+                if x + y + nums[j + 1] + nums[j + 2] > target:  # 优化一
+                    break
+                if x + y + nums[-2] + nums[-1] < target:  # 优化二
+                    continue
+                c = j + 1
+                d = lenth - 1
+                while c < d:
+                    s = x + y + nums[c] + nums[d]
+                    if s > target:
+                        d -= 1
+                    elif s < target:
+                        c += 1
+                    else:
+                        ans.append([x, y, nums[c], nums[d]])
+                        c += 1
+                        while c < d and nums[c] == nums[c - 1]:
+                            c += 1
+                        d -= 1
+                        while d > c and nums[d] == nums[d + 1]:
+                            d -= 1
+        return ans
+```
+
+字典法
+
+求出target和三个元素的差值，判断这个差值是否重复，
+
+如何判断重复？只要目标值val和前面的三元素之一重复，就说明val可能重复了，但是`if freq[val] > count`可以判断是否真正的重复：如果它出现的频率大于可能重复的次数，就说明它一定不重复且存在。
+
+如果不重复就将其加入最终结果。
+
+```python
+class Solution(object):
+    def fourSum(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+        # 创建一个字典来存储输入列表中每个数字的频率
+        freq = {}
+        for num in nums:
+            freq[num] = freq.get(num, 0) + 1
+        
+        # 创建一个集合来存储最终答案，并遍历4个数字的所有唯一组合
+        ans = set()
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                for k in range(j + 1, len(nums)):
+                    val = target - (nums[i] + nums[j] + nums[k])
+                    if val in freq:
+                        # 确保没有重复
+                        count = (nums[i] == val) + (nums[j] == val) + (nums[k] == val)
+                        if freq[val] > count:
+                            ans.add(tuple(sorted([nums[i], nums[j], nums[k], val])))
+        
+        return [list(x) for x in ans]
 ```
 
