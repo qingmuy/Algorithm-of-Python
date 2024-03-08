@@ -2,6 +2,8 @@
 
 LeetCode：100x
 
+卡码：300x
+
  
 
 ## 目录
@@ -33,6 +35,14 @@ LeetCode：100x
 [1049 - 有效的字母异位](#p1049)
 
 [1053 - 赎金信](#p1053)
+
+[1056 - 反转字符串中的单词](#p1056)
+
+[1057 - 重复的子字符串](#p1057)
+
+[3001 - 替换数字](#p3001)
+
+[3002 -  右旋字符串](#p3002)
 
 
 
@@ -114,7 +124,7 @@ LeetCode：100x
 
 [1008 - 移除元素](#p1008)
 
-[1009 - 找出字符串中第一个匹配项的下标](#p1008)
+[1009 - 找出字符串中第一个匹配项的下标](#p1009)
 
 [1017 - 合并两个有序数组](#p1017)
 
@@ -133,6 +143,8 @@ LeetCode：100x
 [1054 - 三数之和](#p1054)
 
 [1055 - 四数之和](#p1055)
+
+[1056 - 反转字符串中的单词](#p1056)
 
 
 
@@ -2681,6 +2693,8 @@ class Solution:
 
 #### 解法
 
+双指针解法
+
 ```python
 class Solution:
     def reverseString(self, s: List[str]) -> None:
@@ -2697,6 +2711,22 @@ class Solution:
             s[head] = temp
             tail, head = tail + 1, head - 1
 ```
+
+调库
+
+对于使用`[::-1]`切片方法其本质上是返回一个新的数组，而是用`reverse`方法则是直接在内存上做出修改。
+
+```python
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        """
+        Do not return anything, modify s in-place instead.
+        """
+        # 调库
+        return s.reverse()
+```
+
+
 
 
 
@@ -3779,7 +3809,7 @@ class Solution:
 
 
 
-### 1052 - 四数相加<a id="p1052"></a>
+### 1052 - 四数相加 II<a id="p1052"></a>
 
 #### 问题
 
@@ -4115,5 +4145,251 @@ class Solution(object):
                             ans.add(tuple(sorted([nums[i], nums[j], nums[k], val])))
         
         return [list(x) for x in ans]
+```
+
+
+
+### 1056 - 反转字符串中的单词<a id="p1056"></a>
+
+#### 问题
+
+给你一个字符串 `s` ，请你反转字符串中 **单词** 的顺序。
+
+**单词** 是由非空格字符组成的字符串。`s` 中使用至少一个空格将字符串中的 **单词** 分隔开。
+
+返回 **单词** 顺序颠倒且 **单词** 之间用单个空格连接的结果字符串。
+
+**注意：**输入字符串 `s`中可能会存在前导空格、尾随空格或者单词间的多个空格。返回的结果字符串中，单词间应当仅用单个空格分隔，且不包含任何额外的空格。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "the sky is blue"
+输出："blue is sky the"
+```
+
+**示例 2：**
+
+```
+输入：s = "  hello world  "
+输出："world hello"
+解释：反转后的字符串中不能存在前导空格和尾随空格。
+```
+
+**示例 3：**
+
+```
+输入：s = "a good   example"
+输出："example good a"
+解释：如果两个单词间有多余的空格，反转后的字符串需要将单词间的空格减少到仅有一个。
+```
+
+
+
+#### 解法
+
+调库
+
+```python
+return " ".join(s.split()[::-1])
+```
+
+双指针，切割后双向奔赴
+
+```python
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        # 切割，双向奔赴反转
+        lst = s.split()
+        l, r = 0, len(lst) - 1
+        while l < r:
+            lst[l], lst[r] = lst[r], lst[l]
+            l += 1
+            r -= 1
+        return " ".join(lst)
+```
+
+
+
+### 1057 - 重复的子字符串<a id="p1057"></a>
+
+#### 问题
+
+给定一个非空的字符串 `s` ，检查是否可以通过由它的一个子串重复多次构成。
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "abab"
+输出: true
+解释: 可由子串 "ab" 重复两次构成。
+```
+
+**示例 2:**
+
+```
+输入: s = "aba"
+输出: false
+```
+
+**示例 3:**
+
+```
+输入: s = "abcabcabcabc"
+输出: true
+解释: 可由子串 "abc" 重复四次构成。 (或子串 "abcabc" 重复两次构成。)
+```
+
+
+
+#### 解法
+
+代码随想录：移动匹配
+
+当一个字符串s：abcabc，内部由重复的子串组成，那么这个字符串的结构一定是这样的：
+
+![图一](./assets/20220728104518.png)
+
+也就是由前后相同的子串组成。
+
+那么既然前面有相同的子串，后面有相同的子串，用 s + s，这样组成的字符串中，后面的子串做前串，前面的子串做后串，就一定还能组成一个s，如图：
+
+![图二](./assets/20220728104931.png)
+
+所以判断字符串s是否由重复子串组成，只要两个s拼接在一起，里面还出现一个s的话，就说明是由重复子串组成。
+
+当然，我们在判断 s + s 拼接的字符串里是否出现一个s的的时候，**要刨除 s + s 的首字符和尾字符**，这样避免在s+s中搜索出原来的s，我们要搜索的是中间拼接出来的s。
+
+
+
+下面是使用in方法
+
+```python
+class Solution:
+    def repeatedSubstringPattern(self, s: str) -> bool:
+        n = len(s)
+        if n <= 1:
+            return False
+        ss = s[1:] + s[:-1]             
+        return s in ss
+```
+
+下面是使用find方法
+
+```python
+class Solution:
+    def repeatedSubstringPattern(self, s: str) -> bool:
+        n = len(s)
+        if n <= 1:
+            return False
+        ss = s[1:] + s[:-1] 
+        print(ss.find(s))              
+        return ss.find(s) != -1
+```
+
+
+
+
+
+### 3001 - 替换数字<a id="p3001"></a>
+
+#### 问题
+
+###### 题目描述
+
+给定一个字符串 s，它包含小写字母和数字字符，请编写一个函数，将字符串中的字母字符保持不变，而将每个数字字符替换为number。 例如，对于输入字符串 "a1b2c3"，函数应该将其转换为 "anumberbnumbercnumber"。
+
+###### 输入描述
+
+输入一个字符串 s,s 仅包含小写字母和数字字符。
+
+###### 输出描述
+
+打印一个新的字符串，其中每个数字字符都被替换为了number
+
+###### 输入示例
+
+```
+a1b2c3
+```
+
+###### 输出示例
+
+```
+anumberbnumbercnumber
+```
+
+
+
+#### 方法
+
+字符串切割成，如果是数字就替换成number
+
+```python
+s = input()
+result = ""
+lst = []
+for i in s:
+    if ord(i) >= 48 and ord(i) <= 57:
+        lst.append("number")
+        continue
+    lst.append(i)
+    
+for i in lst:
+    result = result + i
+    
+print(result)
+```
+
+
+
+### 3002 -  右旋字符串<a id="p3002"></a>
+
+#### 问题
+
+###### 题目描述
+
+字符串的右旋转操作是把字符串尾部的若干个字符转移到字符串的前面。给定一个字符串 s 和一个正整数 k，请编写一个函数，将字符串中的后面 k 个字符移到字符串的前面，实现字符串的右旋转操作。 
+
+例如，对于输入字符串 "abcdefg" 和整数 2，函数应该将其转换为 "fgabcde"。
+
+###### 输入描述
+
+输入共包含两行，第一行为一个正整数 k，代表右旋转的位数。第二行为字符串 s，代表需要旋转的字符串。
+
+###### 输出描述
+
+输出共一行，为进行了右旋转操作后的字符串。
+
+###### 输入示例
+
+```
+2
+abcdefg
+```
+
+###### 输出示例
+
+```
+fgabcde
+```
+
+
+
+#### 解法
+
+```python
+# 所谓右旋字符串，就是按照先后顺序将一定位数的字符串反转到字符串左侧
+k = int(input())
+s = input()
+lenth = len(s)
+for i in range(-1,-(k + 1),-1):
+    print(s[i])
+    s = s[i] + s
+print(s[:lenth])
 ```
 
