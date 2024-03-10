@@ -66,8 +66,6 @@ LeetCode：100x
 
 
 
-
-
 #### 栈
 
 [1005 - 有效的括号](#p1005)
@@ -75,6 +73,14 @@ LeetCode：100x
 [1018：二叉树的中序遍历](#p1018)
 
 [1058 - 删除字符串中的所有相邻重复项](#p1058)
+
+[1059 - 逆波兰表达式求值](#p1059)
+
+
+
+#### 队列
+
+[1060 - 滑动窗口的最大值](#p1060)
 
 
 
@@ -117,6 +123,8 @@ LeetCode：100x
 [1052 - 四数相加 II](#p1052)
 
 [1053 - 赎金信](#p1053)
+
+[1061 - 前k个高频元素](#p1061)
 
 
 
@@ -199,6 +207,8 @@ LeetCode：100x
 #### 滑动窗口
 
 [1040 - 长度最小的子数组](#p1040)
+
+[1060 - 滑动窗口的最大值]()
 
 
 
@@ -4322,6 +4332,8 @@ class Solution:
 
 #### 解法
 
+使用栈
+
 ```python
 class Solution:
     def removeDuplicates(self, s: str) -> str:
@@ -4333,6 +4345,368 @@ class Solution:
                 result.append(i)
         return "".join(result)
 ```
+
+使用双指针
+
+```python
+class Solution:
+    def removeDuplicates(self, s: str) -> str:
+        res = list(s)
+        slow = fast = 0
+        length = len(res)
+
+        while fast < length:
+            # 如果一样直接换，不一样会把后面的填在slow的位置
+            res[slow] = res[fast]
+            
+            # 如果发现和前一个一样，就退一格指针
+            if slow > 0 and res[slow] == res[slow - 1]:
+                slow -= 1
+            else:
+                slow += 1
+            fast += 1
+            
+        return ''.join(res[0: slow])
+```
+
+
+
+### 1059 - 逆波兰表达式求值<a id="p1059"></a>
+
+#### 问题
+
+给你一个字符串数组 `tokens` ，表示一个根据 [逆波兰表示法](https://baike.baidu.com/item/逆波兰式/128437) 表示的算术表达式。
+
+请你计算该表达式。返回一个表示表达式值的整数。
+
+**注意：**
+
+- 有效的算符为 `'+'`、`'-'`、`'*'` 和 `'/'` 。
+- 每个操作数（运算对象）都可以是一个整数或者另一个表达式。
+- 两个整数之间的除法总是 **向零截断** 。
+- 表达式中不含除零运算。
+- 输入是一个根据逆波兰表示法表示的算术表达式。
+- 答案及所有中间计算结果可以用 **32 位** 整数表示。
+
+ 
+
+**示例 1：**
+
+```
+输入：tokens = ["2","1","+","3","*"]
+输出：9
+解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+```
+
+**示例 2：**
+
+```
+输入：tokens = ["4","13","5","/","+"]
+输出：6
+解释：该算式转化为常见的中缀算术表达式为：(4 + (13 / 5)) = 6
+```
+
+**示例 3：**
+
+```
+输入：tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+输出：22
+解释：该算式转化为常见的中缀算术表达式为：
+  ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+= ((10 * (6 / (12 * -11))) + 17) + 5
+= ((10 * (6 / -132)) + 17) + 5
+= ((10 * 0) + 17) + 5
+= (0 + 17) + 5
+= 17 + 5
+= 22
+```
+
+
+
+#### 解法
+
+**逆波兰表达式：**
+
+逆波兰表达式是一种后缀表达式，所谓后缀就是指算符写在后面。
+
+- 平常使用的算式则是一种中缀表达式，如 `( 1 + 2 ) * ( 3 + 4 )` 。
+- 该算式的逆波兰表达式写法为 `( ( 1 2 + ) ( 3 4 + ) * )` 。
+
+逆波兰表达式主要有以下两个优点：
+
+- 去掉括号后表达式无歧义，上式即便写成 `1 2 + 3 4 + * `也可以依据次序计算出正确结果。
+- **适合用栈操作运算：遇到数字则入栈；遇到算符则取出栈顶两个数字进行计算，并将结果压入栈中**
+
+```python
+class Solution:
+    def evalRPN(self, tokens: List[str]) -> int:
+        # 栈：遇到数字则入栈，遇到运算符则去除栈顶的两个数字进行计算，并将结果压入栈中
+        lst = []
+        for i in tokens:
+            if i not in {"+", "-", "*", "/"}:
+                lst.append(int(i))
+            elif i == "+":
+                a = lst.pop()
+                b = lst.pop()
+                lst.append(a + b)
+            elif i == "-":
+                a = lst.pop()
+                b = lst.pop()
+                lst.append(b - a)
+            elif i == "*":
+                a = lst.pop()
+                b = lst.pop()
+                lst.append(a * b)
+            elif i == "/":
+                a = lst.pop()
+                b = lst.pop()
+                lst.append(int(b / a))
+
+        return lst[0]
+```
+
+使用字典后的简化版本
+
+```python
+from operator import add, sub, mul
+
+class Solution:
+    op_map = {'+': add, '-': sub, '*': mul, '/': lambda x, y: int(x / y)}
+    
+    def evalRPN(self, tokens: List[str]) -> int:
+        stack = []
+        for token in tokens:
+            if token not in {'+', '-', '*', '/'}:
+                stack.append(int(token))
+            else:
+                op2 = stack.pop()
+                op1 = stack.pop()
+                stack.append(self.op_map[token](op1, op2))  # 第一个出来的在运算符后面
+        return stack.pop()
+```
+
+
+
+### 1060 - 滑动窗口的最大值<a id="p1060"></a>
+
+#### 问题
+
+给你一个整数数组 `nums`，有一个大小为 `k` 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 `k` 个数字。滑动窗口每次只向右移动一位。
+
+返回 *滑动窗口中的最大值* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+输出：[3,3,5,5,6,7]
+解释：
+滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+```
+
+**示例 2：**
+
+```
+输入：nums = [1], k = 1
+输出：[1]
+```
+
+
+
+#### 解法
+
+代码随想录
+
+> 来看一下单调队列如何维护队列里的元素。
+>
+> 动画如下：
+>
+> ![239.滑动窗口最大值](./assets/239.滑动窗口最大值.gif)
+
+> 对于窗口里的元素{2, 3, 5, 1 ,4}，单调队列里只维护{5, 4} 就够了，保持单调队列里单调递减，此时队列出口元素就是窗口里最大元素。
+>
+> 此时大家应该怀疑单调队列里维护着{5, 4} 怎么配合窗口进行滑动呢？
+>
+> 设计单调队列的时候，pop，和push操作要保持如下规则：
+>
+> 1. pop(value)：如果窗口移除的元素value等于单调队列的出口元素，那么队列弹出元素，否则不用任何操作
+> 2. push(value)：如果push的元素value大于入口元素的数值，那么就将队列入口的元素弹出，直到push元素的数值小于等于队列入口元素的数值为止
+>
+> 保持如上规则，每次窗口移动的时候，只要问que.front()就可以返回当前窗口的最大值。
+>
+> 为了更直观的感受到单调队列的工作过程，以题目示例为例，输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3，动画如下：
+
+> ![239.滑动窗口最大值-2](./assets/239.滑动窗口最大值-2.gif)
+
+
+
+目前最优解法，使用collection包下面的deque数据结构进行操作，具体实现是单调队列。
+
+```python
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        l=[]
+        n=len(nums)
+        deque=collections.deque()
+        for i in range(k):
+            while deque and nums[i]>deque[-1]:
+                deque.pop()
+            deque.append(nums[i])
+        l.append(deque[0])
+        for i in range(k,n):
+            if deque[0]==nums[i-k]:
+                deque.popleft()
+            while deque and nums[i]>deque[-1]:
+                deque.pop()
+            deque.append(nums[i])
+            l.append(deque[0])
+        return l
+```
+
+正常人的暴力解法，LeetCode通过90%
+
+```python
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        if k == 1:
+            return nums
+        # 记录最大值的索引，最大索引以后方为主
+        # 一旦索引越界就更新最大值并记录索引
+        max_num = max(nums[0:k])
+        max_index = 0
+        for i in range(k):
+            if nums[i] == max_num:
+                max_index = i
+        result = [max_num]
+
+        for i in range(k, len(nums)):
+            if i - k  + 1> max_index:
+                max_num = max(nums[i - k + 1:i + 1])
+                for j in range(i - k + 1, i + 1):
+                    if nums[j] == max_num:
+                        max_index = j
+            elif nums[i] > max_num:
+                max_num = nums[i]
+            result.append(max_num)
+        return result
+```
+
+
+
+### 1061 - 前k个高频元素<a id="p1061"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` 和一个整数 `k` ，请你返回其中出现频率前 `k` 高的元素。你可以按 **任意顺序** 返回答案。
+
+ 
+
+**示例 1:**
+
+```
+输入: nums = [1,1,1,2,2,3], k = 2
+输出: [1,2]
+```
+
+**示例 2:**
+
+```
+输入: nums = [1], k = 1
+输出: [1]
+```
+
+
+
+#### 解法
+
+使用哈希表进行暴力解法，其中用到了字典的`zip()`方法：将字典的键和值反转。
+
+```python
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        暴力
+        result = []
+        dirt = {}
+        for i in nums:
+            dirt[i] = dirt.get(i, 0) + 1
+        for i in range(k):
+            max_index = max(zip(dirt.values(), dirt.keys()))
+            result.append(max_index[1])
+            dirt.pop(result[-1])
+        return result
+```
+
+使用列表代替小顶堆，也是暴力解法，不过速度要快很多。
+
+```python
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        result = []
+        lst = []
+        dirt = {}
+        for i in nums:
+            dirt[i] = dirt.get(i, 0) + 1
+
+        for key, value in dirt.items():
+            lst.append((value, key))
+        lst.sort()
+        for i in range(len(lst) - 1, len(lst) - k - 1, -1):
+            result.append(lst[i][-1])
+        return result
+```
+
+使用headq模块，是对堆的相关操作的模块。
+
+关于headq模块的使用可以参考[Python中heapq模块浅析_heapq.heappush-CSDN博客](https://blog.csdn.net/chandelierds/article/details/91357784)
+
+代码随想录：
+
+> ![347.前K个高频元素](./assets/347.前K个高频元素.jpg)
+
+```python
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        #时间复杂度：O(nlogk)
+        #空间复杂度：O(n)
+        import heapq
+        #要统计元素出现频率
+        map_ = {} #nums[i]:对应出现的次数
+        for i in range(len(nums)):
+            map_[nums[i]] = map_.get(nums[i], 0) + 1
+        
+        #对频率排序
+        #定义一个小顶堆，大小为k
+        pri_que = [] #小顶堆
+        
+        #用固定大小为k的小顶堆，扫描所有频率的数值
+        for key, freq in map_.items():
+            heapq.heappush(pri_que, (freq, key))
+            print(pri_que)
+            if len(pri_que) > k: #如果堆的大小大于了K，则队列弹出，保证堆的大小一直为k
+                heapq.heappop(pri_que)
+                print("弹出后", pri_que)
+        
+
+        print("最终的", pri_que)
+        #找出前K个高频元素，因为小顶堆先弹出的是最小的，所以倒序来输出到数组
+        result = [0] * k
+        for i in range(k-1, -1, -1):
+            result[i] = heapq.heappop(pri_que)[1]
+        return result
+```
+
+
+
+
 
 
 
