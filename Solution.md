@@ -106,6 +106,24 @@ LeetCode：100x
 
 [1033 - 二叉树的后序遍历](#p1033)
 
+[1062 - 二叉树的层序遍历](#p1062)
+
+[1063 - 二叉树的右视图](#p1063)
+
+[1064 - 二叉树的层平均值](#p1064)
+
+[1065 - N叉树的层序遍历](#p1065)
+
+[1066 - 在每个树行中找最大值](#p1066)
+
+[1067 - 填充每个节点的下一个右侧节点指针](#p1067)
+
+[1068 - 填充每个节点的下一个右侧节点指针 II](#p1068)
+
+[1069 - 翻转二叉树](#p1069)
+
+[1070 - 完全二叉树的节点个数](#p1)
+
 
 
 #### 哈希表
@@ -1468,6 +1486,30 @@ class Solution:
         return result
 ```
 
+方法三：使用迭代模板
+
+```python
+class Solution:
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
+        result = []
+        st= []
+        if root:
+            st.append(root)
+        while st:
+            node = st.pop()
+            if node != None:
+                if node.right: #右
+                    st.append(node.right)
+                if node.left: #左
+                    st.append(node.left)
+                st.append(node) #中
+                st.append(None)
+            else:
+                node = st.pop()
+                result.append(node.val)
+        return result
+```
+
 
 
 ### 1019 - 相同的树<a id="p1019"></a>
@@ -1559,13 +1601,9 @@ class Solution:
 
 #### 解法
 
+递归
+
 ```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
 class Solution:
     def judge(self,rootleft:Optional[TreeNode],rootright:Optional[TreeNode]) -> bool:
             if not rootleft and not rootright:
@@ -1579,6 +1617,30 @@ class Solution:
             return True
     def isSymmetric(self, root: Optional[TreeNode]) -> bool:
         return self.judge(root.left,root.right)
+```
+
+迭代
+
+```python
+class Solution:
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        from collections import deque
+        deque = collections.deque()
+        deque.append(root.left)
+        deque.append(root.right)
+        while deque:
+            left = deque.popleft()
+            right = deque.popleft()
+            if not left and not right: #左节点为空、右节点为空，此时说明是对称的
+                continue
+            #左右一个节点不为空，或者都不为空但数值不相同，返回false
+            if not left or not right or left.val != right.val:
+                return False
+            deque.append(left.left)
+            deque.append(right.right)
+            deque.append(left.right)
+            deque.append(right.left)
+        return True
 ```
 
 
@@ -1615,6 +1677,8 @@ class Solution:
 
 #### 解法
 
+递归解法
+
 ```python
 # Definition for a binary tree node.
 # class TreeNode:
@@ -1634,6 +1698,29 @@ class Solution:
             return max((1 + self.Judge(root.left)),(1 + self.Judge(root.right)))
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         return self.Judge(root)
+```
+
+使用模板解法
+
+```python
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        
+        depth = 0
+        queue = collections.deque([root])
+        
+        while queue:
+            depth += 1
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+        
+        return depth
 ```
 
 
@@ -1892,6 +1979,30 @@ class Solution:
             if root.left:deque.append((depth+1, root.left))
             if root.right:deque.append((depth+1, root.right))
 ```
+
+模板
+
+```python
+class Solution:
+    def minDepth(self, root):
+        if not root:
+        	return 0
+        from collections import deque
+        deque = collections.deque([root])
+        result = 0
+        while deque:
+            result += 1
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                if not node.left and not node.right:
+                    return result
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+```
+
+
 
 
 
@@ -2478,6 +2589,32 @@ class Solution:
         return result
 ```
 
+使用递归模板
+
+```python
+class Solution:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        result = []
+        st = []
+        if root:
+            st.append(root)
+        while st:
+            node = st.pop()
+            if node != None:
+                if node.right: #添加右节点（空节点不入栈）
+                    st.append(node.right)
+                
+                st.append(node) #添加中节点
+                st.append(None) #中节点访问过，但是还没有处理，加入空节点做为标记。
+                
+                if node.left: #添加左节点（空节点不入栈）
+                    st.append(node.left)
+            else: #只有遇到空节点的时候，才将下一个节点放进结果集
+                node = st.pop() #重新取出栈中元素
+                result.append(node.val) #加入到结果集
+        return result
+```
+
 
 
 ### 1033 - 二叉树的后序遍历<a id="p1033"></a>
@@ -2547,6 +2684,31 @@ class Solution:
                 lst.append(root.val)
         posoder(root)
         return lst
+```
+
+迭代模板
+
+```python
+class Solution:
+    def postorderTraversal(self, root: TreeNode) -> List[int]:
+        result = []
+        st = []
+        if root:
+            st.append(root)
+        while st:
+            node = st.pop()
+            if node != None:
+                st.append(node) #中
+                st.append(None)
+                
+                if node.right: #右
+                    st.append(node.right)
+                if node.left: #左
+                    st.append(node.left)
+            else:
+                node = st.pop()
+                result.append(node.val)
+        return result
 ```
 
 
@@ -4705,6 +4867,587 @@ class Solution:
 ```
 
 
+
+### 1062 - 二叉树的层序遍历<a id="p1062"></a>
+
+#### 问题
+
+给你二叉树的根节点 `root` ，返回其节点值的 **层序遍历** 。 （即逐层地，从左到右访问所有节点）。
+
+ 
+
+**示例 1：**
+
+![img](./assets/tree1.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：[[3],[9,20],[15,7]]
+```
+
+**示例 2：**
+
+```
+输入：root = [1]
+输出：[[1]]
+```
+
+**示例 3：**
+
+```
+输入：root = []
+输出：[]
+```
+
+
+
+#### 解法
+
+常规迭代
+
+```python
+if not root:
+            return []
+        stack = [root]
+        result = []
+        while stack:
+            temp = []
+            for _ in range(len(stack)):
+                node = stack.pop(0)
+                temp.append(node.val)
+                if node.left:
+                    stack.append(node.left)
+                if node.right:
+                    stack.append(node.right)
+            result.append(temp)
+        return result
+```
+
+使用collections模块中的deque数据结构，能优化速度
+
+```python
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root:
+            return []
+        # deque是一个增强列表，提供了双向增删改；该函数是将列表转为双向列表
+        queue = collections.deque([root])
+        result = []
+        while queue:
+            level = []
+            for _ in range(len(queue)):
+                # 取出头部元素
+                cur = queue.popleft()
+                level.append(cur.val)
+                if cur.left:
+                    queue.append(cur.left)
+                if cur.right:
+                    queue.append(cur.right)
+            result.append(level)
+        return result
+```
+
+实际上二者的原理是一样的，不过双端队列(deque)数据结构应该能优化底层的速度
+
+
+
+### 1063 - 二叉树的右视图<a id="p1063"></a>
+
+#### 问题
+
+给定一个二叉树的 **根节点** `root`，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+
+ 
+
+**示例 1:**
+
+![img](./assets/tree.jpg)
+
+```
+输入: [1,2,3,null,5,null,4]
+输出: [1,3,4]
+```
+
+**示例 2:**
+
+```
+输入: [1,null,3]
+输出: [1,3]
+```
+
+**示例 3:**
+
+```
+输入: []
+输出: []
+```
+
+
+
+#### 解法
+
+只需要进行层序遍历即可，最后将每层的最后一个元素返回即可。
+
+ ```python
+ class Solution:
+     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+         from collections import deque
+         if not root:
+             return []
+         deque = collections.deque([root])
+         result = []
+         while deque:
+             lenth = len(deque)
+             for i in range(lenth):
+                 node = deque.popleft()
+                 if i == lenth - 1:
+                     result.append(node.val)
+                 if node.left:
+                     deque.append(node.left)
+                 if node.right:
+                     deque.append(node.right)
+         return result
+ ```
+
+
+
+### 1064 - 二叉树的层平均值<a id="p1064"></a>
+
+#### 问题
+
+给定一个非空二叉树的根节点 `root` , 以数组的形式返回每一层节点的平均值。与实际答案相差 `10-5` 以内的答案可以被接受。
+
+ 
+
+**示例 1：**
+
+![img](./assets/avg1-tree.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：[3.00000,14.50000,11.00000]
+解释：第 0 层的平均值为 3,第 1 层的平均值为 14.5,第 2 层的平均值为 11 。
+因此返回 [3, 14.5, 11] 。
+```
+
+**示例 2:**
+
+![img](./assets/avg2-tree.jpg)
+
+```
+输入：root = [3,9,20,15,7]
+输出：[3.00000,14.50000,11.00000]
+```
+
+
+
+#### 解法
+
+```python
+class Solution:
+    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            temp = []
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                temp.append(node.val)
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+            result.append(sum(temp) / len(temp))
+        return result
+```
+
+
+
+### 1065 - N叉树的层序遍历<a id="p1065"></a>
+
+#### 问题
+
+给定一个 N 叉树，返回其节点值的*层序遍历*。（即从左到右，逐层遍历）。
+
+树的序列化输入是用层序遍历，每组子节点都由 null 值分隔（参见示例）。
+
+ 
+
+**示例 1：**
+
+![img](./assets/narytreeexample.png)
+
+```
+输入：root = [1,null,3,2,4,null,5,6]
+输出：[[1],[3,2,4],[5,6]]
+```
+
+**示例 2：**
+
+![img](./assets/sample_4_964.png)
+
+```
+输入：root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
+输出：[[1],[2,3,4,5],[6,7,8,9,10],[11,12,13],[14]]
+```
+
+
+
+#### 解法
+
+常规运用模板
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+
+class Solution:
+    def levelOrder(self, root: 'Node') -> List[List[int]]:
+        if not root:
+            return []
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            temp = []
+            for i in range(len(deque)):
+                node = deque.popleft()
+                temp.append(node.val)
+                for j in node.children:
+                    deque.append(j)
+            result.append(temp)
+        return result
+```
+
+
+
+### 1066 - 在每个树行中找最大值<a id="p1066"></a>
+
+#### 问题
+
+给定一棵二叉树的根节点 `root` ，请找出该二叉树中每一层的最大值。
+
+ 
+
+**示例1：**
+
+![img](./assets/largest_e1.jpg)
+
+```
+输入: root = [1,3,2,5,3,null,9]
+输出: [1,3,9]
+```
+
+**示例2：**
+
+```
+输入: root = [1,2,3]
+输出: [1,3]
+```
+
+
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def largestValues(self, root: Optional[TreeNode]) -> List[int]:
+        if not root:
+            return []
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            max_num = float('-inf')
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                max_num = node.val if node.val > max_num else max_num
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+            result.append(max_num)
+        return result
+```
+
+
+
+### 1067 - 填充每个节点的下一个右侧节点指针<a id="p1067"></a>
+
+#### 问题
+
+给定一个 **完美二叉树** ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL`。
+
+初始状态下，所有 next 指针都被设置为 `NULL`。
+
+ 
+
+**示例 1：**
+
+![img](./assets/116_sample.png)
+
+```
+输入：root = [1,2,3,4,5,6,7]
+输出：[1,#,2,3,#,4,5,6,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
+```
+
+
+
+**示例 2:**
+
+```
+输入：root = []
+输出：[]
+```
+
+
+
+#### 解法
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+        self.val = val
+        self.left = left
+        self.right = right
+        self.next = next
+"""
+class Solution:
+    def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+        if not root:
+            return None
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            temp = []
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                temp.append(node)
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+            result.append(temp)
+        for lst in result:
+            for i in range(len(lst) - 1):
+                lst[i].next = lst[i + 1]
+        return root
+```
+
+
+
+### 1068 - 填充每个节点的下一个右侧节点指针 II<a id="p1068"></a>
+
+#### 问题
+
+给定一个二叉树：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL` 。
+
+初始状态下，所有 next 指针都被设置为 `NULL` 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/117_sample.png)
+
+```
+输入：root = [1,2,3,4,5,null,7]
+输出：[1,#,2,3,#,4,5,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化输出按层序遍历顺序（由 next 指针连接），'#' 表示每层的末尾。
+```
+
+**示例 2：**
+
+```
+输入：root = []
+输出：[]
+```
+
+
+
+#### 解法
+
+与上一题一致
+
+
+
+### 1069 - 翻转二叉树<a id="p1069"></a>
+
+#### 问题
+
+给你一棵二叉树的根节点 `root` ，翻转这棵二叉树，并返回其根节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/invert1-tree.jpg)
+
+```
+输入：root = [4,2,7,1,3,6,9]
+输出：[4,7,2,9,6,3,1]
+```
+
+**示例 2：**
+
+![img](./assets/invert2-tree.jpg)
+
+```
+输入：root = [2,1,3]
+输出：[2,3,1]
+```
+
+**示例 3：**
+
+```
+输入：root = []
+输出：[]
+```
+
+
+
+#### 解法
+
+递归
+
+```python
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if not root:
+            return root
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        root.left, root.right = root.right, root.left
+        return root
+```
+
+迭代，貌似没有递归快
+
+```python
+class Solution:
+    def reverse(self, root):
+        if not root:
+            return None
+        from collections import deque
+        deque = collections.deque([root])
+        while deque:
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                node.right, node.left = node.left, node.right
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+        return root
+```
+
+
+
+### 1070 - 完全二叉树的节点个数<a id="p1070"></a>
+
+#### 问题
+
+给你一棵 **完全二叉树** 的根节点 `root` ，求出该树的节点个数。
+
+[完全二叉树](https://baike.baidu.com/item/完全二叉树/7773232?fr=aladdin) 的定义如下：在完全二叉树中，除了最底层节点可能没填满外，其余每层节点数都达到最大值，并且最下面一层的节点都集中在该层最左边的若干位置。若最底层为第 `h` 层，则该层包含 `1~ 2h` 个节点。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/14/complete.jpg)
+
+```
+输入：root = [1,2,3,4,5,6]
+输出：6
+```
+
+**示例 2：**
+
+```
+输入：root = []
+输出：0
+```
+
+**示例 3：**
+
+```
+输入：root = [1]
+输出：1
+```
+
+
+
+#### 解法
+
+迭代计算节点数量
+
+```python
+class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        from collections import deque
+        lst = collections.deque()
+        if root:
+            lst.append(root)
+        result = 0
+        while lst:
+            lenth = len(lst)
+            for _ in range(lenth):
+                node = lst.popleft()
+                result += 1
+                if node.left:
+                    lst.append(node.left)
+                if node.right:
+                    lst.append(node.right)
+        return result
+```
+
+递归计算节点数量
+
+```python
+class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+```
 
 
 
