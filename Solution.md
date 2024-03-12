@@ -122,7 +122,25 @@ LeetCode：100x
 
 [1069 - 翻转二叉树](#p1069)
 
-[1070 - 完全二叉树的节点个数](#p1)
+[1070 - 完全二叉树的节点个数](#p1070)
+
+[1071 - 二叉树的所有路径](#p1071)
+
+[1072 - 左叶子之和](#p1072)
+
+[1073 - 找树左下角的值](#p1073)
+
+[1074 - 路径总和 II](#p1074)
+
+[1075 - 从中序与后序遍历序列构造二叉树](#p1075)
+
+[1076 - 最大二叉树](#p1076)
+
+[1077 - 合并二叉树](#p1077)
+
+[1078 - 二叉搜索树中的搜索](#p1078)
+
+[1079 - 验证二叉搜索树](#p1079)
 
 
 
@@ -175,6 +193,12 @@ LeetCode：100x
 [1055 - 四数之和](#p1055)
 
 [1056 - 反转字符串中的单词](#p1056)
+
+
+
+#### 回溯
+
+[1071 - 二叉树的所有路径](#p1071)
 
 
 
@@ -1490,23 +1514,25 @@ class Solution:
 
 ```python
 class Solution:
-    def preorderTraversal(self, root: TreeNode) -> List[int]:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
         result = []
-        st= []
+        st = []
         if root:
             st.append(root)
         while st:
             node = st.pop()
             if node != None:
-                if node.right: #右
+                if node.right: #添加右节点（空节点不入栈）
                     st.append(node.right)
-                if node.left: #左
+                
+                st.append(node) #添加中节点
+                st.append(None) #中节点访问过，但是还没有处理，加入空节点做为标记。
+                
+                if node.left: #添加左节点（空节点不入栈）
                     st.append(node.left)
-                st.append(node) #中
-                st.append(None)
-            else:
-                node = st.pop()
-                result.append(node.val)
+            else: #只有遇到空节点的时候，才将下一个节点放进结果集
+                node = st.pop() #重新取出栈中元素
+                result.append(node.val) #加入到结果集
         return result
 ```
 
@@ -2073,6 +2099,41 @@ class Solution:
                 return self.hasPathSum(root.left, targetSum - root.val) if root.left else self.hasPathSum(root.right, targetSum - root.val)
 ```
 
+递归精简
+
+```python
+class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if not root:
+            return False
+        if not root.left and not root.right and targetSum == root.val:
+            return True
+        return self.hasPathSum(root.left, targetSum - root.val) or self.hasPathSum(root.right, targetSum - root.val)
+```
+
+迭代
+
+```python
+class Solution:
+    def hasPathSum(self, root: TreeNode, sum: int) -> bool:
+        if not root:
+            return False
+        # 此时栈里要放的是pair<节点指针，路径数值>
+        st = [(root, root.val)]
+        while st:
+            node, path_sum = st.pop()
+            # 如果该节点是叶子节点了，同时该节点的路径数值等于sum，那么就返回true
+            if not node.left and not node.right and path_sum == sum:
+                return True
+            # 右节点，压进去一个节点的时候，将该节点的路径数值也记录下来
+            if node.right:
+                st.append((node.right, path_sum + node.right.val))
+            # 左节点，压进去一个节点的时候，将该节点的路径数值也记录下来
+            if node.left:
+                st.append((node.left, path_sum + node.left.val))
+        return False
+```
+
 
 
 ### 1026 - 杨辉三角<a id="p1026"></a>
@@ -2593,25 +2654,23 @@ class Solution:
 
 ```python
 class Solution:
-    def inorderTraversal(self, root: TreeNode) -> List[int]:
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
         result = []
-        st = []
+        st= []
         if root:
             st.append(root)
         while st:
             node = st.pop()
             if node != None:
-                if node.right: #添加右节点（空节点不入栈）
+                if node.right: #右
                     st.append(node.right)
-                
-                st.append(node) #添加中节点
-                st.append(None) #中节点访问过，但是还没有处理，加入空节点做为标记。
-                
-                if node.left: #添加左节点（空节点不入栈）
+                if node.left: #左
                     st.append(node.left)
-            else: #只有遇到空节点的时候，才将下一个节点放进结果集
-                node = st.pop() #重新取出栈中元素
-                result.append(node.val) #加入到结果集
+                st.append(node) #中
+                st.append(None)
+            else:
+                node = st.pop()
+                result.append(node.val)
         return result
 ```
 
@@ -5448,6 +5507,660 @@ class Solution:
             return 0
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
 ```
+
+
+
+### 1071 - 二叉树的所有路径<a id="p1071"></a>
+
+#### 问题
+
+给你一个二叉树的根节点 `root` ，按 **任意顺序** ，返回所有从根节点到叶子节点的路径。
+
+**叶子节点** 是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/paths-tree.jpg)
+
+```
+输入：root = [1,2,3,null,5]
+输出：["1->2->5","1->3"]
+```
+
+**示例 2：**
+
+```
+输入：root = [1]
+输出：["1"]
+```
+
+
+
+#### 解法
+
+递归 + 隐形回溯
+
+```python
+# 隐形回溯
+class Solution:
+    def binaryTreePaths(self, root: TreeNode) -> List[str]:
+        result = []
+        if not root: return result
+        self.traversal(root, '', result)
+        return result
+    
+    def traversal(self, cur: TreeNode, path: str, result: List[str]) -> None:
+        path += str(cur.val)
+        # 若当前节点为leave，直接输出
+        if not cur.left and not cur.right:
+            result.append(path)
+            return
+
+        if cur.left:
+            # + '->' 是隐藏回溯
+            self.traversal(cur.left, path + '->', result)
+        
+        if cur.right:
+            self.traversal(cur.right, path + '->', result)
+```
+
+
+
+### 1072 - 左叶子之和<a id="p1072"></a>
+
+#### 解法
+
+给定二叉树的根节点 `root` ，返回所有左叶子之和。
+
+ 
+
+**示例 1：**
+
+![img](./assets/leftsum-tree.jpg)
+
+```
+输入: root = [3,9,20,null,null,15,7] 
+输出: 24 
+解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24
+```
+
+**示例 2:**
+
+```
+输入: root = [1]
+输出: 0
+```
+
+
+
+#### 问题
+
+模板迭代
+
+```python
+class Solution:
+    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -> int:
+        if not root.left and not root.right:
+            return 0
+        from collections import deque
+        deque = collections.deque([root])
+        result = 0
+        while deque:
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                if node.left and not node.left.left and not node.left.right:
+                    result += node.left.val
+                elif node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+        return result
+```
+
+递归
+
+```python
+class Solution:
+    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        leftValue = 0
+        if root.left is not None and root.left.left is None and root.left.right is None:
+            leftValue = root.left.val
+        return leftValue + self.sumOfLeftLeaves(root.left) + self.sumOfLeftLeaves(root.right)
+```
+
+
+
+### 1073 - 找树左下角的值<a id="p1073"></a>
+
+#### 问题
+
+给定一个二叉树的 **根节点** `root`，请找出该二叉树的 **最底层 最左边** 节点的值。
+
+假设二叉树中至少有一个节点。
+
+ 
+
+**示例 1:**
+
+![img](./assets/tree1-1710237223920-1.jpg)
+
+```
+输入: root = [2,1,3]
+输出: 1
+```
+
+**示例 2:**
+
+![img](./assets/tree2.jpg)
+
+```
+输入: [1,2,3,4,null,5,6,null,null,7]
+输出: 7
+```
+
+
+
+#### 解法
+
+迭代法
+
+```python
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            temp = []
+            for _ in range(len(deque)):
+                node = deque.popleft()
+                temp.append(node.val)
+                if node.left:
+                    deque.append(node.left)
+                if node.right:
+                    deque.append(node.right)
+            result = temp
+        return result[0]
+```
+
+递归
+
+```python
+class Solution:
+    def findBottomLeftValue(self, root: TreeNode) -> int:
+        self.max_depth = float('-inf')
+        self.result = None
+        self.traversal(root, 0)
+        return self.result
+    
+    def traversal(self, node, depth):
+        if not node.left and not node.right:
+            if depth > self.max_depth:
+                self.max_depth = depth
+                self.result = node.val
+            return
+        
+        # 这里注意先遍历左边是因为左侧会将最大值设置为自己的深度，这样就不会更改为右侧的节点的值
+        if node.left:
+            self.traversal(node.left, depth + 1) 
+        if node.right:
+            self.traversal(node.right, depth + 1)
+```
+
+
+
+### 1074 - 路径总和 II<a id="p1074"></a>
+
+#### 问题
+
+给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
+
+**叶子节点** 是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/pathsumii1.jpg)
+
+```
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+输出：[[5,4,11,2],[5,8,4,5]]
+```
+
+**示例 2：**
+
+![img](./assets/pathsum2-1710242623525-7.jpg)
+
+```
+输入：root = [1,2,3], targetSum = 5
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：root = [1,2], targetSum = 0
+输出：[]
+```
+
+ 
+
+#### 解法
+
+递归
+
+```python
+class Solution:
+    def pathSum(self, root: Optional[TreeNode], targetSum: int) -> List[List[int]]:
+        def find(node, targetsum, temp):
+            print(targetsum)
+            temp.append(node.val)
+            if not node.left and not node.right and targetsum == 0:
+                result.append(temp)
+                return
+            if node.left:
+                find(node.left, targetsum - node.left.val, temp.copy())
+            if node.right:
+                find(node.right, targetsum - node.right.val, temp.copy())
+
+        if not root:
+            return []
+        result = []
+        find(root, targetSum - root.val, [])
+        return result
+```
+
+
+
+### 1075 - 从中序与后序遍历序列构造二叉树<a id="p1075"></a>
+
+#### 问题
+
+给定两个整数数组 `inorder` 和 `postorder` ，其中 `inorder` 是二叉树的中序遍历， `postorder` 是同一棵树的后序遍历，请你构造并返回这颗 *二叉树* 。
+
+ 
+
+**示例 1:**
+
+![img](./assets/tree-1710245633746-11.jpg)
+
+```
+输入：inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
+输出：[3,9,20,null,null,15,7]
+```
+
+**示例 2:**
+
+```
+输入：inorder = [-1], postorder = [-1]
+输出：[-1]
+```
+
+ 
+
+#### 解法
+
+```python
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        # 后序遍历最后一个节点即为根节点
+        # 中序遍历可以确定根节点的左侧节点和右侧节点
+        # 递归
+        if not postorder:
+            return None
+        root = TreeNode(postorder[-1])
+        root_index = inorder.index(postorder[-1])
+        midleft = inorder[:root_index]
+        midright = inorder[root_index + 1:]
+        backleft = postorder[:len(midleft)]
+        backright = postorder[len(midleft):len(postorder) - 1]
+        root.left = self.buildTree(midleft, backleft)
+        root.right = self.buildTree(midright, backright)
+        return root
+```
+
+
+
+### 1076 - 最大二叉树<a id="p1076"></a>
+
+#### 问题
+
+给定一个不重复的整数数组 `nums` 。 **最大二叉树** 可以用下面的算法从 `nums` 递归地构建:
+
+1. 创建一个根节点，其值为 `nums` 中的最大值。
+2. 递归地在最大值 **左边** 的 **子数组前缀上** 构建左子树。
+3. 递归地在最大值 **右边** 的 **子数组后缀上** 构建右子树。
+
+返回 *`nums` 构建的* ***最大二叉树\*** 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/tree1-1710246539214-14.jpg)
+
+```
+输入：nums = [3,2,1,6,0,5]
+输出：[6,3,5,null,2,0,null,null,1]
+解释：递归调用如下所示：
+- [3,2,1,6,0,5] 中的最大值是 6 ，左边部分是 [3,2,1] ，右边部分是 [0,5] 。
+    - [3,2,1] 中的最大值是 3 ，左边部分是 [] ，右边部分是 [2,1] 。
+        - 空数组，无子节点。
+        - [2,1] 中的最大值是 2 ，左边部分是 [] ，右边部分是 [1] 。
+            - 空数组，无子节点。
+            - 只有一个元素，所以子节点是一个值为 1 的节点。
+    - [0,5] 中的最大值是 5 ，左边部分是 [0] ，右边部分是 [] 。
+        - 只有一个元素，所以子节点是一个值为 0 的节点。
+        - 空数组，无子节点。
+```
+
+**示例 2：**
+
+![img](./assets/tree2-1710246539215-15.jpg)
+
+```
+输入：nums = [3,2,1]
+输出：[3,null,2,null,1]
+```
+
+ 
+
+#### 解法
+
+思路类似上题
+
+```python
+class Solution:
+    def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
+        # 处理空列表
+        if not nums:
+            return None
+        
+        max_num = max(nums)
+        root = TreeNode(max_num)
+
+        # 找到切割点
+        index = nums.index(max_num)
+        
+        # 切割左右子树
+        lst_l = nums[:index]
+        lst_r = nums[index + 1:]
+
+        # 递归创建左右子树
+        root.left = self.constructMaximumBinaryTree(lst_l)
+        root.right = self.constructMaximumBinaryTree(lst_r)
+
+        return root
+```
+
+
+
+### 1077 - 合并二叉树<a id="p1077"></a>
+
+#### 问题
+
+给你两棵二叉树： `root1` 和 `root2` 。
+
+想象一下，当你将其中一棵覆盖到另一棵之上时，两棵树上的一些节点将会重叠（而另一些不会）。你需要将这两棵树合并成一棵新二叉树。合并的规则是：如果两个节点重叠，那么将这两个节点的值相加作为合并后节点的新值；否则，**不为** null 的节点将直接作为新二叉树的节点。
+
+返回合并后的二叉树。
+
+**注意:** 合并过程必须从两个树的根节点开始。
+
+ 
+
+**示例 1：**
+
+![img](./assets/merge.jpg)
+
+```
+输入：root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]
+输出：[3,4,5,5,4,null,7]
+```
+
+**示例 2：**
+
+```
+输入：root1 = [1], root2 = [1,2]
+输出：[2,2]
+```
+
+ 
+
+#### 解法
+
+递归，思路与上面一样，称之为模板。
+
+```python
+class Solution:
+    def mergeTrees(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> Optional[TreeNode]:
+        if not root1 and not root2:
+            return None
+        if not root1 and root2:
+            return root2
+        if not root2 and root1:
+            return root1
+        
+        root = TreeNode(root1.val + root2.val)
+
+        root.left = self.mergeTrees(root1.left, root2.left)
+        root.right = self.mergeTrees(root1.right, root2.right)
+
+        return root
+```
+
+直接在root1上做修改，速度和空间应该更快且更小。
+
+```python
+class Solution:
+    def mergeTrees(self, root1: TreeNode, root2: TreeNode) -> TreeNode:
+        # 递归终止条件: 
+        #  但凡有一个节点为空, 就立刻返回另外一个. 如果另外一个也为None就直接返回None. 
+        if not root1: 
+            return root2
+        if not root2: 
+            return root1
+        # 上面的递归终止条件保证了代码执行到这里root1, root2都非空. 
+        root1.val += root2.val # 中
+        root1.left = self.mergeTrees(root1.left, root2.left) #左
+        root1.right = self.mergeTrees(root1.right, root2.right) # 右
+        
+        return root1 # ⚠️ 注意: 本题我们重复使用了题目给出的节点而不是创建新节点. 节省时间, 空间.
+```
+
+
+
+### 1078 - 二叉搜索树中的搜索<a id="p1078"></a>
+
+#### 问题
+
+给定二叉搜索树（BST）的根节点 `root` 和一个整数值 `val`。
+
+你需要在 BST 中找到节点值等于 `val` 的节点。 返回以该节点为根的子树。 如果节点不存在，则返回 `null` 。
+
+ 
+
+**示例 1:**
+
+![img](./assets/tree1-1710248503422-31.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 2
+输出：[2,1,3]
+```
+
+**示例 2:**
+
+![img](./assets/tree2-1710248488534-28.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 5
+输出：[]
+```
+
+ 
+
+#### 解法
+
+递归
+
+```python
+class Solution:
+    def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+        if root.val == val:
+            return root
+        if (not root.left and not root.right) or (root.val > val and not root.left) or (root.val < val and not root.right):
+            return None
+        if root.val > val:
+            return self.searchBST(root.left, val)
+        elif root.val < val:
+            return self.searchBST(root.right, val)
+```
+
+迭代
+
+```python
+class Solution:
+    def searchBST(self, root: TreeNode, val: int) -> TreeNode:
+        while root:
+            if val < root.val: root = root.left
+            elif val > root.val: root = root.right
+            else: return root
+        return None
+```
+
+
+
+### 1079 - 验证二叉搜索树<a id="p1079"></a>
+
+#### 问题
+
+给你一个二叉树的根节点 `root` ，判断其是否是一个有效的二叉搜索树。
+
+**有效** 二叉搜索树定义如下：
+
+- 节点的左
+
+  子树
+
+  只包含
+
+   小于 
+
+  当前节点的数。
+
+- 节点的右子树只包含 **大于** 当前节点的数。
+
+- 所有左子树和右子树自身必须也是二叉搜索树。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg)
+
+```
+输入：root = [2,1,3]
+输出：true
+```
+
+**示例 2：**
+
+![img](./assets/tree2-1710250890821-35.jpg)
+
+```
+输入：root = [5,1,4,null,null,3,6]
+输出：false
+解释：根节点的值是 5 ，但是右子节点的值是 4 。
+```
+
+
+
+#### 解法
+
+根据二叉搜索树的性质：一颗真正的二叉树转换为数组后，其数组是递增的，而且二叉搜索树不能有重复的值。
+
+依据以上性质，使用迭代方法将搜索树转换为数组，验证数组是否重复且递增即可。
+
+```python
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        # 中序遍历
+        lst = [root]
+        result = []
+        while lst:
+            node = lst.pop()
+            if node:
+                if node.right:
+                    lst.append(node.right)
+                lst.append(node)
+                lst.append(None)
+                if node.left:
+                    lst.append(node.left)
+                
+            else:
+                node = lst.pop()
+                result.append(node.val)
+        for i in range(1, len(result)):
+            # 注意要小于等于，搜索树里不能有相同元素
+            if result[i] <= result[i - 1]:
+                return False
+        return True
+```
+
+也可以根据搜索二叉树的性质进行暴力求解，即遍历树的每个节点。
+
+```python
+class Solution:
+    def __init__(self):
+        self.pre = None  # 用来记录前一个节点
+
+    def isValidBST(self, root):
+        if root is None:
+            return True
+
+        left = self.isValidBST(root.left)
+
+        if self.pre is not None and self.pre.val >= root.val:
+            return False
+        self.pre = root  # 记录前一个节点
+
+        right = self.isValidBST(root.right)
+        return left and right
+
+```
+
+也可以使用迭代进行暴力对比，理论上是最优的方法。
+
+```python
+class Solution:
+    def isValidBST(self, root):
+        stack = []
+        cur = root
+        pre = None  # 记录前一个节点
+        while cur is not None or len(stack) > 0:
+            if cur is not None:
+                stack.append(cur)
+                cur = cur.left  # 左
+            else:
+                cur = stack.pop()  # 中
+                if pre is not None and cur.val <= pre.val:
+                    return False
+                pre = cur  # 保存前一个访问的结点
+                cur = cur.right  # 右
+        return True
+```
+
+
+
+
+
+
 
 
 
