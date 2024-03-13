@@ -142,6 +142,22 @@ LeetCode：100x
 
 [1079 - 验证二叉搜索树](#p1079)
 
+[1080 - 二叉搜索树的最小绝对差](#p1080)
+
+[1081 - 二叉搜索树中的众数](#p1081)
+
+[1082 - 二叉树的最近公共祖先](#p1082)
+
+[1083 - 二叉搜索树的最近公共祖先](#p1083)
+
+[1084 - 二叉搜索树中的插入操作](#p1084)
+
+[1085 - 删除二叉搜索树中的节点](#p1085)
+
+[1086 - 修建二叉搜索树](#p1086)
+
+[1087 - 把二叉搜索树转换为累加树](#p10)
+
 
 
 #### 哈希表
@@ -6158,6 +6174,669 @@ class Solution:
 
 
 
+### 1080 - 二叉搜索树的最小绝对差<a id="p1080"></a>
+
+#### 问题
+
+给你一个二叉搜索树的根节点 `root` ，返回 **树中任意两不同节点值之间的最小差值** 。
+
+差值是一个正数，其数值等于两值之差的绝对值。
+
+ 
+
+**示例 1：**
+
+![img](./assets/bst1.jpg)
+
+```
+输入：root = [4,2,6,1,3]
+输出：1
+```
+
+**示例 2：**
+
+![img](./assets/bst2.jpg)
+
+```
+输入：root = [1,0,48,null,null,12,49]
+输出：1
+```
+
+ 
+
+#### 解法
+
+迭代中序遍历二叉树的节点，记录最小差值即可。
+
+```python
+class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        # 迭代中序遍历二叉树
+        import collections
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            node = deque.pop()
+            if node:
+                if node.right:
+                    deque.append(node.right)
+                deque.append(node)
+                deque.append(None)
+                if node.left:
+                    deque.append(node.left)
+            else:
+                node = deque.pop()
+                result.append(node.val)
+        min_result = float('inf')
+        for i in range(1, len(result)):
+            min_result = min(result[i] - result[i - 1], min_result)
+        return min_result
+```
+
+利用二叉搜索树的性质，一个节点的最小绝对差值，必定来源于其本身与左子树中的最大值或与右子树的最小值的差值。
+
+以下利用了递归的方法对于差值。
+
+```python
+class Solution:
+    # 寻找最大值和最小值
+    # 将左侧最大值和右侧最小值返回
+
+    # 使用时要注意传递该节点的左节点
+    def getmax(self, root):
+        if root.right:
+            return self.getmax(root.right)
+        else:
+            return root.val
+
+    def getmin(self, root):
+        if root.left:
+            return self.getmin(root.left)
+        else:
+            return root.val
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        if root.left and root.right:
+            diff_l = min(root.val - self.getmax(root.left), self.getMinimumDifference(root.left))
+            diff_r = min(self.getmin(root.right) - root.val, self.getMinimumDifference(root.right))
+            return min(diff_l, diff_r)
+        if root.left:
+            return min(root.val - self.getmax(root.left), self.getMinimumDifference(root.left))
+        if root.right:
+            return min(self.getmin(root.right) - root.val, self.getMinimumDifference(root.right))
+        if not root.left and not root.right:
+            return float('inf')
+```
+
+
+
+### 1081 - 二叉搜索树中的众数<a id="p1081"></a>
+
+#### 问题
+
+给你一个含重复值的二叉搜索树（BST）的根节点 `root` ，找出并返回 BST 中的所有 [众数](https://baike.baidu.com/item/众数/44796)（即，出现频率最高的元素）。
+
+如果树中有不止一个众数，可以按 **任意顺序** 返回。
+
+假定 BST 满足如下定义：
+
+- 结点左子树中所含节点的值 **小于等于** 当前节点的值
+- 结点右子树中所含节点的值 **大于等于** 当前节点的值
+- 左子树和右子树都是二叉搜索树
+
+ 
+
+**示例 1：**
+
+![img](./assets/mode-tree.jpg)
+
+```
+输入：root = [1,null,2,2]
+输出：[2]
+```
+
+**示例 2：**
+
+```
+输入：root = [0]
+输出：[0] 
+```
+
+
+
+#### 解法
+
+记录搜索树中的所有节点，将所有节点的值以及出现频次加入哈希表即可。
+
+```python
+class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        # 元组记录出现频次
+        import collections
+        from collections import deque
+        deque = collections.deque([root])
+        dirt = {}
+        while deque:
+            node = deque.pop()
+            if node:
+                if node.right:
+                    deque.append(node.right)
+                deque.append(node)
+                deque.append(None)
+                if node.left:
+                    deque.append(node.left)
+            else:
+                node = deque.pop()
+                dirt[node.val] = dirt.get(node.val, 0) + 1
+        max_num = 0
+        for i in dirt.values():
+            max_num = max(i, max_num)
+        result = []
+        for key, value in dirt.items():
+            if value == max_num:
+                result.append(key)
+        return result
+```
+
+使用collections模块中的defaultdict模块
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def searchBST(self, cur, freq_map):
+        if cur is None:
+            return
+        freq_map[cur.val] += 1  # 统计元素频率
+        self.searchBST(cur.left, freq_map)
+        self.searchBST(cur.right, freq_map)
+
+    def findMode(self, root):
+        freq_map = defaultdict(int)  # key:元素，value:出现频率
+        result = []
+        if root is None:
+            return result
+        self.searchBST(root, freq_map)
+        max_freq = max(freq_map.values())
+        for key, freq in freq_map.items():
+            if freq == max_freq:
+                result.append(key)
+        return result
+```
+
+使用递归的方法，先一路向左，记录上一个节点与出现频率，一旦最大频率被更新，则清空结果数组，重新添加结果。重点在于其回溯思想。
+
+```python
+class Solution:
+    def __init__(self):
+        self.maxCount = 0  # 最大频率
+        self.count = 0  # 统计频率
+        self.pre = None
+        self.result = []
+
+    def searchBST(self, cur):
+        if cur is None:
+            return
+
+        self.searchBST(cur.left)  # 左
+        # 中
+        if self.pre is None:  # 第一个节点
+            self.count = 1
+        elif self.pre.val == cur.val:  # 与前一个节点数值相同
+            self.count += 1
+        else:  # 与前一个节点数值不同
+            self.count = 1
+        self.pre = cur  # 更新上一个节点
+
+        if self.count == self.maxCount:  # 如果与最大值频率相同，放进result中
+            self.result.append(cur.val)
+
+        if self.count > self.maxCount:  # 如果计数大于最大值频率
+            self.maxCount = self.count  # 更新最大频率
+            self.result = [cur.val]  # 很关键的一步，不要忘记清空result，之前result里的元素都失效了
+
+        self.searchBST(cur.right)  # 右
+        return
+
+    def findMode(self, root):
+        self.count = 0
+        self.maxCount = 0
+        self.pre = None  # 记录前一个节点
+        self.result = []
+
+        self.searchBST(root)
+        return self.result
+```
+
+
+
+### 1082 - 二叉树的最近公共祖先<a id="p1082"></a>
+
+#### 问题
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+ 
+
+**示例 1：**
+
+![img](./assets/binarytree.png)
+
+```
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输出：3
+解释：节点 5 和节点 1 的最近公共祖先是节点 3 。
+```
+
+**示例 2：**
+
+![img](./assets/binarytree.png)
+
+```
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+输出：5
+解释：节点 5 和节点 4 的最近公共祖先是节点 5 。因为根据定义最近公共祖先节点可以为节点本身。
+```
+
+**示例 3：**
+
+```
+输入：root = [1,2], p = 1, q = 2
+输出：1
+```
+
+ 
+
+#### 解法
+
+递归解法
+
+```python
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # 只是寻找p， q；其余节点一律当成空节点
+        
+        # 因为目标节点必定存在，所以如果头节点就是目标节点之一，直接返回头节点即可
+        # 还有就是本判断条件置于头部就是为了处理目标节点是自己的公共祖先节点的情况
+        if root == p or root == q or not root:
+            return root
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p , q)
+        # 处理目标节点左右分配在祖先节点左右
+        if left and right:
+            return root
+        # 处理空节点
+        if not left and not right:
+            return None
+        # 缩进后：因为空节点被处理了，剩下的情况就是存在一个目标节点
+        return left if left else right
+```
+
+
+
+### 1083 - 二叉搜索树的最近公共祖先<a id="p1083"></a>
+
+#### 问题
+
+给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+例如，给定如下二叉搜索树: root = [6,2,8,0,4,7,9,null,null,3,5]
+
+![img](./assets/binarysearchtree_improved.png)
+
+ 
+
+**示例 1:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+输出: 6 
+解释: 节点 2 和节点 8 的最近公共祖先是 6。
+```
+
+**示例 2:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+输出: 2
+解释: 节点 2 和节点 4 的最近公共祖先是 2, 因为根据定义最近公共祖先节点可以为节点本身。
+```
+
+
+
+#### 解法
+
+不论是迭代还是递归，运用的都是二叉搜索树自带的排序属性，一定要分析好递归的条件和返回值，使其连贯。
+
+迭代的方法：
+
+```python
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # 迭代
+        while root:
+            if root.val > p.val and root.val > q.val:
+                root = root.left
+            elif root.val < p.val and root.val < q.val:
+                root = root.right
+            else:
+                return root
+```
+
+递归的方法：
+
+```python
+# 递归
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if root.val > p.val and root.val > q.val:
+            return self.lowestCommonAncestor(root.left, p ,q)
+        elif root.val < p.val and root.val < q.val:
+            return self.lowestCommonAncestor(root.right, p ,q)
+        else:
+            return root
+```
+
+
+
+### 1084 - 二叉搜索树中的插入操作<a id="p1084"></a>
+
+#### 问题
+
+给定二叉搜索树（BST）的根节点 `root` 和要插入树中的值 `value` ，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。 输入数据 **保证** ，新值和原始二叉搜索树中的任意节点值都不同。
+
+**注意**，可能存在多种有效的插入方式，只要树在插入后仍保持为二叉搜索树即可。 你可以返回 **任意有效的结果** 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/insertbst-1710331209864-7.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 5
+输出：[4,2,7,1,3,5]
+解释：另一个满足题目要求可以通过的树是：
+```
+
+**示例 2：**
+
+```
+输入：root = [40,20,60,10,30,50,70], val = 25
+输出：[40,20,60,10,30,50,70,null,null,25]
+```
+
+**示例 3：**
+
+```
+输入：root = [4,2,7,1,3,null,null,null,null,null,null], val = 5
+输出：[4,2,7,1,3,5]
+```
+
+
+
+#### 解法
+
+通过迭代找到要插入的节点。
+
+```python
+class Solution:
+    def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+        if not root:
+            return TreeNode(val)
+        result = root
+        while True:
+            if root.val > val and root.left:
+                root = root.left
+                continue
+            elif root.val < val and root.right:
+                root = root.right
+                continue
+            if root.val > val:
+                root.left = TreeNode(val)
+                return result
+            else:
+                root.right = TreeNode(val)
+                return result
+```
+
+
+
+### 1085 - 删除二叉搜索树中的节点<a id="p1085"></a>
+
+#### 问题
+
+给定一个二叉搜索树的根节点 **root** 和一个值 **key**，删除二叉搜索树中的 **key** 对应的节点，并保证二叉搜索树的性质不变。返回二叉搜索树（有可能被更新）的根节点的引用。
+
+一般来说，删除节点可分为两个步骤：
+
+1. 首先找到需要删除的节点；
+2. 如果找到了，删除它。
+
+ 
+
+**示例 1:**
+
+![img](./assets/del_node_1.jpg)
+
+```
+输入：root = [5,3,6,2,4,null,7], key = 3
+输出：[5,4,6,2,null,null,7]
+解释：给定需要删除的节点值是 3，所以我们首先找到 3 这个节点，然后删除它。
+一个正确的答案是 [5,4,6,2,null,null,7], 如下图所示。
+另一个正确答案是 [5,2,6,null,4,null,7]。
+```
+
+**示例 2:**
+
+```
+输入: root = [5,3,6,2,4,null,7], key = 0
+输出: [5,3,6,2,4,null,7]
+解释: 二叉树不包含值为 0 的节点
+```
+
+**示例 3:**
+
+```
+输入: root = [], key = 0
+输出: []
+```
+
+ 
+
+#### 解法
+
+```python
+class Solution:
+    def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
+        # 递归
+        if not root:
+            return root
+        if root.val == key:
+            if not root.left and not root.right:
+                return None
+            elif not root.left:
+                return root.right
+            elif not root.right:
+                return root.left
+            else:
+                node = root.right
+                while node.left:
+                    node = node.left
+                node.left = root.left
+                return root.right
+        if root.val > key:
+            root.left = self.deleteNode(root.left, key)
+        if root.val < key:
+            root.right = self.deleteNode(root.right, key)
+        return root
+```
+
+
+
+### 1086 - 修建二叉搜索树<a id="p1086"></a>
+
+#### 问题
+
+给你二叉搜索树的根节点 `root` ，同时给定最小边界`low` 和最大边界 `high`。通过修剪二叉搜索树，使得所有节点的值在`[low, high]`中。修剪树 **不应该** 改变保留在树中的元素的相对结构 (即，如果没有被移除，原有的父代子代关系都应当保留)。 可以证明，存在 **唯一的答案** 。
+
+所以结果应当返回修剪好的二叉搜索树的新的根节点。注意，根节点可能会根据给定的边界发生改变。
+
+ 
+
+**示例 1：**
+
+![img](./assets/trim1.jpg)
+
+```
+输入：root = [1,0,2], low = 1, high = 2
+输出：[1,null,2]
+```
+
+**示例 2：**
+
+![img](./assets/trim2.jpg)
+
+```
+输入：root = [3,0,4,null,2,null,null,1], low = 1, high = 3
+输出：[3,2,null,1]
+```
+
+ 
+
+#### 解法
+
+```python
+class Solution:
+    def trimBST(self, root: Optional[TreeNode], low: int, high: int) -> Optional[TreeNode]:
+        # 递归
+        if root is None:
+            return None
+        if root.val < low:
+            # 寻找符合区间 [low, high] 的节点
+            return self.trimBST(root.right, low, high)
+        if root.val > high:
+            # 寻找符合区间 [low, high] 的节点
+            return self.trimBST(root.left, low, high)
+        root.left = self.trimBST(root.left, low, high)  # root.left 接入符合条件的左孩子
+        root.right = self.trimBST(root.right, low, high)  # root.right 接入符合条件的右孩子
+        return root
+```
+
+
+
+### 1087 - 把二叉搜索树转换为累加树<a id="p1087"></a>
+
+#### 问题
+
+给出二叉 **搜索** 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 `node` 的新值等于原树中大于或等于 `node.val` 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+- 节点的左子树仅包含键 **小于** 节点键的节点。
+- 节点的右子树仅包含键 **大于** 节点键的节点。
+- 左右子树也必须是二叉搜索树。
+
+**注意：**本题和 1038: https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/ 相同
+
+ 
+
+**示例 1：**
+
+**![img](./assets/tree.png)**
+
+```
+输入：[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
+输出：[30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
+```
+
+**示例 2：**
+
+```
+输入：root = [0,null,1]
+输出：[1,null,1]
+```
+
+**示例 3：**
+
+```
+输入：root = [1,0,2]
+输出：[3,3,2]
+```
+
+**示例 4：**
+
+```
+输入：root = [3,2,4,1]
+输出：[7,9,4,10]
+```
+
+ 
+
+#### 解法
+
+通过中序遍历记录所有的节点，在对于每个节点进行累加即可。
+
+```python
+class Solution:
+    def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        # 中序遍历
+        if not root:
+            return root
+        import collections
+        from collections import deque
+        deque = collections.deque([root])
+        result = []
+        while deque:
+            node = deque.pop()
+            if node:
+                if node.right:
+                    deque.append(node.right)
+                deque.append(node)
+                deque.append(None)
+                if node.left:
+                    deque.append(node.left)
+            else:
+                node = deque.pop()
+                result.append(node)
+        temp = 0
+        for i in result[::-1]:
+            i.val += temp
+            temp = i.val
+        return root
+```
+
+简化后，不需要记录节点。
+
+```python
+class Solution:
+    def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        # 中序遍历
+        if not root:
+            return root
+        import collections
+        from collections import deque
+        deque = collections.deque()
+        node = root
+        pre = 0
+        while deque or node:
+            if node:
+                deque.append(node)
+                node = node.right
+            else:
+                node = deque.pop()
+                node.val += pre
+                pre = node.val
+                node = node.left
+        return root
+```
+
+
+
 
 
 
@@ -6268,5 +6947,70 @@ for i in range(-1,-(k + 1),-1):
     print(s[i])
     s = s[i] + s
 print(s[:lenth])
+```
+
+
+
+### 1084 - 二叉搜索树中的插入操作<a id="p1084"></a>
+
+#### 问题
+
+给定二叉搜索树（BST）的根节点 `root` 和要插入树中的值 `value` ，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。 输入数据 **保证** ，新值和原始二叉搜索树中的任意节点值都不同。
+
+**注意**，可能存在多种有效的插入方式，只要树在插入后仍保持为二叉搜索树即可。 你可以返回 **任意有效的结果** 。
+
+ 
+
+**示例 1：**
+
+![img](./assets/insertbst.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 5
+输出：[4,2,7,1,3,5]
+解释：另一个满足题目要求可以通过的树是：
+```
+
+**示例 2：**
+
+```
+输入：root = [40,20,60,10,30,50,70], val = 25
+输出：[40,20,60,10,30,50,70,null,null,25]
+```
+
+**示例 3：**
+
+```
+输入：root = [4,2,7,1,3,null,null,null,null,null,null], val = 5
+输出：[4,2,7,1,3,5]
+```
+
+
+
+#### 解法
+
+通过迭代最为简单
+
+```python
+# 迭代
+class Solution:
+    def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+
+        if not root:
+            return TreeNode(val)
+        result = root
+        while True:
+            if root.val > val and root.left:
+                root = root.left
+                continue
+            elif root.val < val and root.right:
+                root = root.right
+                continue
+            if root.val > val:
+                root.left = TreeNode(val)
+                return result
+            else:
+                root.right = TreeNode(val)
+                return result
 ```
 
