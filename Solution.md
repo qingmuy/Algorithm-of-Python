@@ -156,7 +156,9 @@ LeetCode：100x
 
 [1086 - 修建二叉搜索树](#p1086)
 
-[1087 - 把二叉搜索树转换为累加树](#p10)
+[1087 - 把二叉搜索树转换为累加树](#p1087)
+
+[1088 - 二叉搜索树中的插入操作](#p1088)
 
 
 
@@ -215,6 +217,16 @@ LeetCode：100x
 #### 回溯
 
 [1071 - 二叉树的所有路径](#p1071)
+
+[1089 - 组合](#p1089)
+
+[1090 - 组合总和 III](#p1090)
+
+[1091 - 电话号码的字母组合](#p1091)
+
+[1092 - 组合总数](#p1092)
+
+[1093 - 组合总和 II](#p1093)
 
 
 
@@ -6837,20 +6849,6 @@ class Solution:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### 3001 - 替换数字<a id="p3001"></a>
 
 #### 问题
@@ -6951,7 +6949,7 @@ print(s[:lenth])
 
 
 
-### 1084 - 二叉搜索树中的插入操作<a id="p1084"></a>
+### 1088 - 二叉搜索树中的插入操作<a id="p1088"></a>
 
 #### 问题
 
@@ -7012,5 +7010,425 @@ class Solution:
             else:
                 root.right = TreeNode(val)
                 return result
+```
+
+
+
+### 1089 - 组合<a id="p1089"></a>
+
+#### 问题
+
+给定两个整数 `n` 和 `k`，返回范围 `[1, n]` 中所有可能的 `k` 个数的组合。
+
+你可以按 **任何顺序** 返回答案。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 4, k = 2
+输出：
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+```
+
+**示例 2：**
+
+```
+输入：n = 1, k = 1
+输出：[[1]]
+```
+
+ 
+
+#### 解法
+
+参考:[代码随想录](https://www.programmercarl.com/0077.组合.html)
+
+记住回溯的模板，回溯本身就是递归。
+
+ 利用图片便于理解：
+
+> ![77.组合3](./assets/20201123195407907.png)
+
+对于本题而言，递归终止的条件就是临时数组的长度达到了k的目标阈值。
+
+```python
+class Solution:
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        result = []
+        self.backtracking(n, k, 1, [], result)
+        return result
+    def backtracking(self, n, k, startIndex, temp, result):
+        if len(temp) == k:
+            result.append(temp[:])    # 使用[:]才能存上
+            return
+        for i in range(startIndex, n + 1):		# 在这里产生了不必要的遍历
+            temp.append(i)
+            self.backtracking(n, k, i + 1, temp, result)
+            temp.pop()  # 保持初始状态
+```
+
+当然，虽然回溯就是穷举，但是为了优化性能，可以配合剪枝使用：如在n=4，k=4的情况下，后续的很多遍历都是无用的，如下图便于理解：
+
+> ![77.组合4](./assets/20210130194335207-20230310134409532.png)
+
+所以可以将其优化
+
+```python
+class Solution:
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        result = []
+        self.backtracking(n, k, 1, [], result)
+        return result
+    def backtracking(self, n, k, startIndex, temp, result):
+        if len(temp) == k:
+            result.append(temp[:])    # 使用[:]才能存上
+            return
+        for i in range(startIndex, n - (k - len(temp)) + 2):	#优化的部分
+            temp.append(i)
+            self.backtracking(n, k, i + 1, temp, result)
+            temp.pop()  # 保持初始状态
+```
+
+
+
+### 1090 - 组合总和 III<a id="p1090"></a>
+
+#### 问题
+
+找出所有相加之和为 `n` 的 `k` 个数的组合，且满足下列条件：
+
+- 只使用数字1到9
+- 每个数字 **最多使用一次** 
+
+返回 *所有可能的有效组合的列表* 。该列表不能包含相同的组合两次，组合可以以任何顺序返回。
+
+ 
+
+**示例 1:**
+
+```
+输入: k = 3, n = 7
+输出: [[1,2,4]]
+解释:
+1 + 2 + 4 = 7
+没有其他符合的组合了。
+```
+
+**示例 2:**
+
+```
+输入: k = 3, n = 9
+输出: [[1,2,6], [1,3,5], [2,3,4]]
+解释:
+1 + 2 + 6 = 9
+1 + 3 + 5 = 9
+2 + 3 + 4 = 9
+没有其他符合的组合了。
+```
+
+**示例 3:**
+
+```
+输入: k = 4, n = 1
+输出: []
+解释: 不存在有效的组合。
+在[1,9]范围内使用4个不同的数字，我们可以得到的最小和是1+2+3+4 = 10，因为10 > 1，没有有效的组合。
+```
+
+ 
+
+#### 解法
+
+递归，不包含剪枝
+
+```python
+class Solution:
+    def breaktracking(self, k, n, startIndex, temp, result):
+        if len(temp) == k and sum(temp) == n:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, 10):
+            temp.append(i)
+            self.breaktracking(k, n, i + 1, temp, result)
+            temp.pop()
+        
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        result = []
+        self.breaktracking(k, n, 1, [], result)
+        return result
+```
+
+剪枝优化
+
+```python
+class Solution:
+    def breaktracking(self, k, n, startIndex, temp, result):
+        if sum(temp) > n:
+            return
+        if len(temp) == k and sum(temp) == n:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, 9 - (k - len(temp)) + 2):
+            temp.append(i)
+            self.breaktracking(k, n, i + 1, temp, result)
+            temp.pop()
+        
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        result = []
+        self.breaktracking(k, n, 1, [], result)
+        return result
+```
+
+
+
+### 1091 - 电话号码的字母组合<a id="p1091"></a>
+
+#### 问题
+
+给定一个仅包含数字 `2-9` 的字符串，返回所有它能表示的字母组合。答案可以按 **任意顺序** 返回。
+
+给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
+
+![img](./assets/200px-telephone-keypad2svg.png)
+
+ 
+
+**示例 1：**
+
+```
+输入：digits = "23"
+输出：["ad","ae","af","bd","be","bf","cd","ce","cf"]
+```
+
+**示例 2：**
+
+```
+输入：digits = ""
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：digits = "2"
+输出：["a","b","c"]
+```
+
+
+
+#### 解法
+
+模板
+
+```python
+class Solution:
+    def breaktracking(self, digits, startIndex, temp, result, lenth, lst):
+        if startIndex == lenth:
+            result.append(temp)
+            return
+        new_lst = lst[int(digits[startIndex])]
+        for i in range(len(new_lst)):
+            new_temp = temp + new_lst[i]
+            self.breaktracking(digits, startIndex + 1, new_temp, result, lenth, lst)
+            
+    def letterCombinations(self, digits: str) -> List[str]:
+        if not digits:
+            return []
+        result = []
+        lst = [[], [], ["a", "b", "c"], ["d", "e", "f"], ["g", "h", 'i'], ['j', 'k', 'l'], ['m', 'n', 'o'], ['p', 'q', 'r', 's'], ['t', 'u', 'v'], ['w', 'x', 'y', 'z']]
+        self.breaktracking(digits, 0, "", result, len(digits), lst)
+        return result
+```
+
+
+
+### 1092 - 组合总数<a id="p1092"></a>
+
+#### 问题
+
+给你一个 **无重复元素** 的整数数组 `candidates` 和一个目标整数 `target` ，找出 `candidates` 中可以使数字和为目标数 `target` 的 所有 **不同组合** ，并以列表形式返回。你可以按 **任意顺序** 返回这些组合。
+
+`candidates` 中的 **同一个** 数字可以 **无限制重复被选取** 。如果至少一个数字的被选数量不同，则两种组合是不同的。 
+
+对于给定的输入，保证和为 `target` 的不同组合数少于 `150` 个。
+
+ 
+
+**示例 1：**
+
+```
+输入：candidates = [2,3,6,7], target = 7
+输出：[[2,2,3],[7]]
+解释：
+2 和 3 可以形成一组候选，2 + 2 + 3 = 7 。注意 2 可以使用多次。
+7 也是一个候选， 7 = 7 。
+仅有这两种组合。
+```
+
+**示例 2：**
+
+```
+输入: candidates = [2,3,5], target = 8
+输出: [[2,2,2,2],[2,3,3],[3,5]]
+```
+
+**示例 3：**
+
+```
+输入: candidates = [2], target = 1
+输出: []
+```
+
+
+
+#### 解法
+
+模板，未剪枝
+
+```python
+class Solution:
+    def breaktracking(self, candidates, target, sums, startIndex, temp, result):
+        if sums > target:
+            return
+        if sums == target:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(candidates)):
+            sums += candidates[i]
+            temp.append(candidates[i])
+            self.breaktracking(candidates, target, sums, i, temp, result)
+            temp.pop()
+            sums -= candidates[i]
+    
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []
+        self.breaktracking(candidates, target, 0, 0, [], result)
+        return result
+```
+
+剪枝优化
+
+```python
+class Solution:
+    def breaktracking(self, candidates, target, sums, startIndex, temp, result):
+        if sums == target:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(candidates)):
+            if sums + candidates[i] > target:
+                return
+            sums += candidates[i]
+            temp.append(candidates[i])
+            self.breaktracking(candidates, target, sums, i, temp, result)
+            temp.pop()
+            sums -= candidates[i]
+    
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []
+        candidates.sort()
+        self.breaktracking(candidates, target, 0, 0, [], result)
+        return result
+```
+
+转换思路，不需要记录和，记录差值是否为0即可，少传递参数，剪枝优化后：
+
+```python
+# 递减
+class Solution:
+    def breaktracking(self, candidates, target, startIndex, temp, result):
+        if target == 0:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(candidates)):
+            if target -  candidates[i] < 0:
+                return
+            target -= candidates[i]
+            temp.append(candidates[i])
+            self.breaktracking(candidates, target, i, temp, result)
+            temp.pop()
+            target += candidates[i]
+    
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []
+        candidates.sort()
+        self.breaktracking(candidates, target, 0, [], result)
+        return result
+```
+
+
+
+### 1093 - 组合总和 II<a id="p1093"></a>
+
+#### 问题
+
+给定一个候选人编号的集合 `candidates` 和一个目标数 `target` ，找出 `candidates` 中所有可以使数字和为 `target` 的组合。
+
+`candidates` 中的每个数字在每个组合中只能使用 **一次** 。
+
+**注意：**解集不能包含重复的组合。 
+
+ 
+
+**示例 1:**
+
+```
+输入: candidates = [10,1,2,7,6,1,5], target = 8,
+输出:
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+```
+
+**示例 2:**
+
+```
+输入: candidates = [2,5,2,1,2], target = 5,
+输出:
+[
+[1,2,2],
+[5]
+]
+```
+
+
+
+#### 解法
+
+使用排序，便于排除重复的元素，然后使用模板即可。
+
+```python
+class Solution:
+    def breaktracking(self, candidates, target, startIndex, temp, result):
+        if target == 0:
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(candidates)):
+            if target - candidates[i] < 0:
+                return
+            if i > startIndex and candidates[i] == candidates[i - 1]:
+                continue
+            temp.append(candidates[i])
+            target -= candidates[i]
+            self.breaktracking(candidates, target, i + 1, temp, result)
+            target += candidates[i]
+            temp.pop()
+
+    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        result = []
+        self.breaktracking(candidates, target, 0, [], result)
+        return result
 ```
 
