@@ -228,6 +228,10 @@ LeetCode：100x
 
 [1093 - 组合总和 II](#p1093)
 
+[1095 - 复原 IP 地址](#p1095)
+
+[1096 - 子集](#p1096)
+
 
 
 #### 动态规划
@@ -7429,6 +7433,241 @@ class Solution:
         candidates.sort()
         result = []
         self.breaktracking(candidates, target, 0, [], result)
+        return result
+```
+
+
+
+### 1094 - 分割回文串<a id="p1094"></a>
+
+#### 问题
+
+给你一个字符串 `s`，请你将 `s` 分割成一些子串，使每个子串都是 
+
+**回文串**
+
+ 。返回 `s` 所有可能的分割方案。
+
+
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "aab"
+输出：[["a","a","b"],["aa","b"]]
+```
+
+**示例 2：**
+
+```
+输入：s = "a"
+输出：[["a"]]
+```
+
+ 
+
+#### 解法
+
+使用模板回溯即可，添加一个判断字符串是否为回文串即可。
+
+```python
+class Solution:
+    def breaktracking(self, s, startIndex, temp, result):
+        if startIndex == len(s):
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(s)):
+            if s[startIndex:i + 1] == s[startIndex:i + 1][::-1]:
+                temp.append(s[startIndex:i + 1])
+                self.breaktracking(s, i + 1, temp, result)
+                temp.pop()
+    def partition(self, s: str) -> List[List[str]]:
+        result = []
+        self.breaktracking(s, 0, [], result)
+        return result
+```
+
+优化了判断回文串的流程：事先计算出该字符串是否为回文串即可。
+
+> 例如给定字符串`"abcde"`, 在已知`"bcd"`不是回文字串时, 不再需要去双指针操作`"abcde"`而可以直接判定它一定不是回文字串。
+>
+> 具体来说, 给定一个字符串`s`, 长度为`n`, 它成为回文字串的充分必要条件是`s[0] == s[n-1]`且`s[1:n-1]`是回文字串。
+
+```python
+class Solution:
+    # 本部分计算了字符串是否为回文串
+    def computePalindrome(self, s, isPalindrome):
+        for i in range(len(s) - 1, -1, -1):  # 需要倒序计算，保证在i行时，i+1行已经计算好了
+            for j in range(i, len(s)):
+                if j == i:
+                    isPalindrome[i][j] = True
+                elif j - i == 1:
+                    isPalindrome[i][j] = (s[i] == s[j])
+                else:
+                    isPalindrome[i][j] = (s[i] == s[j] and isPalindrome[i+1][j-1])
+    def breaktracking(self, s, startIndex, temp, result, isPalindrome):
+        if startIndex == len(s):
+            result.append(temp[:])
+            return
+        for i in range(startIndex, len(s)):
+            # 此部分可以优化判断是否为回文串
+            if isPalindrome[startIndex][i]:
+                temp.append(s[startIndex:i + 1])
+                self.breaktracking(s, i + 1, temp, result, isPalindrome)
+                temp.pop()
+    def partition(self, s: str) -> List[List[str]]:
+        result = []
+        isPalindrome = [[False] * len(s) for _ in range(len(s))]  # 初始化isPalindrome矩阵
+        self.computePalindrome(s, isPalindrome)
+        print(isPalindrome)
+        self.breaktracking(s, 0, [], result, isPalindrome)
+        return result
+```
+
+动态规划写法：过于逆天难以理解
+
+```python
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        dp = [[[]]]
+        # dp[i]表示s[:i]所有可能的分割方案
+        for i in range(1, len(s) + 1):
+            dp.append([])
+            for j in range(i):
+                tmp = s[j:i]
+                if tmp == tmp[::-1]:
+                    for l in dp[j]:
+                        dp[-1].append(l + [tmp])
+        return dp[-1]
+```
+
+
+
+### 1095 - 复原 IP 地址<a id="p1095"></a>
+
+#### 问题
+
+**有效 IP 地址** 正好由四个整数（每个整数位于 `0` 到 `255` 之间组成，且不能含有前导 `0`），整数之间用 `'.'` 分隔。
+
+- 例如：`"0.1.2.201"` 和` "192.168.1.1"` 是 **有效** IP 地址，但是 `"0.011.255.245"`、`"192.168.1.312"` 和 `"192.168@1.1"` 是 **无效** IP 地址。
+
+给定一个只包含数字的字符串 `s` ，用以表示一个 IP 地址，返回所有可能的**有效 IP 地址**，这些地址可以通过在 `s` 中插入 `'.'` 来形成。你 **不能** 重新排序或删除 `s` 中的任何数字。你可以按 **任何** 顺序返回答案。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "25525511135"
+输出：["255.255.11.135","255.255.111.35"]
+```
+
+**示例 2：**
+
+```
+输入：s = "0000"
+输出：["0.0.0.0"]
+```
+
+**示例 3：**
+
+```
+输入：s = "101023"
+输出：["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+```
+
+ 
+
+#### 解法
+
+使用模板，注意此处的剪枝优化极为重要，以及如何判断要添加的数字是否合法，以及什么条件下是最终结果。
+
+```python
+class Solution:
+    def is_valid(self, s, start, end):
+        if start > end:
+            return False
+        if s[start] == '0' and start != end:  # 0开头的数字不合法
+            return False
+        num = int(s[start:end+1])
+        return 0 <= num <= 255
+
+    def breaktrack(self, temp, result, startIndex, s):
+        if startIndex == len(s) and len(temp) == 4:
+            result.append(".".join(temp))
+            return
+
+        # 剪枝,优化很多很多
+        if len(temp) > 4:
+            return
+
+        for i in range(startIndex, min(startIndex + 3, len(s))):
+            # 前面的数字不到255,且不能为0开头的数字
+            if self.is_valid(s, startIndex, i):
+                temp.append(s[startIndex:i + 1])
+                self.breaktrack(temp, result, i + 1, s)
+                temp.pop()
+
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        # 最深递归四层,控制在最后一层仍然有数字即可
+        result = []
+        self.breaktrack([], result, 0, s)
+        return result
+```
+
+
+
+### 1096 - 子集<a id="p1096"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` ，数组中的元素 **互不相同** 。返回该数组所有可能的
+
+子集
+
+（幂集）。
+
+
+
+解集 **不能** 包含重复的子集。你可以按 **任意顺序** 返回解集。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0]
+输出：[[],[0]]
+```
+
+ 
+
+#### 解法
+
+标准的模板
+
+```python
+class Solution:
+    def breaktrack(self, temp, result, Index, nums):
+        result.append(temp[:])
+
+        for i in range(Index, len(nums)):
+            temp.append(nums[i])
+            self.breaktrack(temp, result, i + 1, nums)
+            temp.pop()
+
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.breaktrack([], result, 0, nums)
         return result
 ```
 
