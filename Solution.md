@@ -232,6 +232,10 @@ LeetCode：100x
 
 [1096 - 子集](#p1096)
 
+[1097 - 子集 II](#p1097)
+
+[1098 - 非递减子序列](#p1098)
+
 
 
 #### 动态规划
@@ -7668,6 +7672,113 @@ class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         result = []
         self.breaktrack([], result, 0, nums)
+        return result
+```
+
+
+
+### 1097 - 子集 II<a id="p1097"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` ，其中可能包含重复元素，请你返回该数组所有可能的 
+
+子集
+
+（幂集）。
+
+
+
+解集 **不能** 包含重复的子集。返回的解集中，子集可以按 **任意顺序** 排列。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,2]
+输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0]
+输出：[[],[0]]
+```
+
+ 
+
+#### 解法
+
+使用回溯模板以及set集合去重。
+
+```python
+class Solution:
+    def breaktreack(self, nums, startIndex, temp, result):
+        result.append(temp[:])
+        used = set()
+        for i in range(startIndex, len(nums)):
+            if nums[i] in used:
+                continue
+            used.add(nums[i])
+            self.breaktreack(nums[:i] + nums[i + 1:], i, temp + [nums[i]], result)
+
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        result = []
+        self.breaktreack(nums, 0, [], result)
+        return result
+```
+
+
+
+### 1098 - 非递减子序列<a id="p1098"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` ，找出并返回所有该数组中不同的递增子序列，递增子序列中 **至少有两个元素** 。你可以按 **任意顺序** 返回答案。
+
+数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [4,6,7,7]
+输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [4,4,3,2,1]
+输出：[[4,4]]
+```
+
+ 
+
+#### 解法
+
+使用回溯模板和Set集合去重
+
+```python
+class Solution:
+    def breaktrack(self, nums, startIndex, temp, result):
+        if len(temp) > 1:
+            result.append(temp[:])
+        used = set()
+        for i in range(startIndex, len(nums)):
+            if temp and nums[i] < temp[-1] or nums[i] in used:
+                continue
+            used.add(nums[i])
+            self.breaktrack(nums, i + 1, temp + [nums[i]], result)
+
+    def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.breaktrack(nums, 0, [], result)
+        print(result)
         return result
 ```
 
