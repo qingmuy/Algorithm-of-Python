@@ -64,6 +64,8 @@ LeetCode：100x
 
 [1047 - 链表相交](#p1047)
 
+[1034 - 两数相加](#p1034)
+
 
 
 #### 栈
@@ -160,6 +162,8 @@ LeetCode：100x
 
 [1088 - 二叉搜索树中的插入操作](#p1088)
 
+[1101 - 二叉树的层序遍历 II](#p1101)
+
 
 
 #### 哈希表
@@ -224,7 +228,7 @@ LeetCode：100x
 
 [1091 - 电话号码的字母组合](#p1091)
 
-[1092 - 组合总数](#p1092)
+[1092 - 组合总和](#p1092)
 
 [1093 - 组合总和 II](#p1093)
 
@@ -235,6 +239,10 @@ LeetCode：100x
 [1097 - 子集 II](#p1097)
 
 [1098 - 非递减子序列](#p1098)
+
+[1099 - 全排列](#p1099)
+
+[1100 - 全排列 II](#p1100)
 
 
 
@@ -2808,7 +2816,7 @@ class Solution:
 
 
 
-### 1034 - 两数之和<a id="p1034"></a>
+### 1034 - 两数相加<a id="p1034"></a>
 
 #### 问题
 
@@ -3489,7 +3497,7 @@ class MyLinkedList:
 
 
 
-### 1044 - 反转链表<a id="p1043"></a>
+### 1044 - 反转链表<a id="p1044"></a>
 
 #### 问题
 
@@ -7259,7 +7267,7 @@ class Solution:
 
 
 
-### 1092 - 组合总数<a id="p1092"></a>
+### 1092 - 组合总和<a id="p1092"></a>
 
 #### 问题
 
@@ -7782,3 +7790,296 @@ class Solution:
         return result
 ```
 
+
+
+### 1099 - 全排列<a id="p1099"></a>
+
+#### 问题
+
+给定一个不含重复数字的数组 `nums` ，返回其 *所有可能的全排列* 。你可以 **按任意顺序** 返回答案。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,1]
+输出：[[0,1],[1,0]]
+```
+
+**示例 3：**
+
+```
+输入：nums = [1]
+输出：[[1]]
+```
+
+ 
+
+#### 解法
+
+回溯模板，使用过就去掉
+
+```python
+class Solution:
+    def breaktrack(self, nums, temp, result):
+        if not nums:
+            result.append(temp[:])
+            return
+        for i in range(len(nums)):
+            new_nums = nums[:]
+            new_nums.pop(i)
+            self.breaktrack(new_nums, temp + [nums[i]], result)
+
+
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.breaktrack(nums, [], result)
+        return result
+```
+
+使用used数组
+
+```python
+class Solution:
+    def breaktrack(self, nums, temp, result, used):
+        if len(temp) == len(nums):
+            result.append(temp[:])
+            return
+        for i in range(len(nums)):
+            if used[i]:
+                continue
+            used[i] = True
+            self.breaktrack(nums, temp + [nums[i]], result, used)
+            used[i] = False
+
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.breaktrack(nums, [], result, [False] * len(nums))
+        return result
+```
+
+
+
+### 1100 - 全排列 II<a id="p1100"></a>
+
+#### 问题
+
+给定一个可包含重复数字的序列 `nums` ，***按任意顺序*** 返回所有不重复的全排列。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,1,2]
+输出：
+[[1,1,2],
+ [1,2,1],
+ [2,1,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+
+ 
+
+#### 解法
+
+模板
+
+```python
+class Solution:
+    def breaktrack(self, nums, temp, result, used):
+        if len(nums) == len(temp):
+            result.append(temp[:])
+            return
+        for i in range(len(nums)):
+            # 相同的元素，本层已经使用过
+            if used[i] or (i != 0 and nums[i] == nums[i - 1] and not used[i - 1]):
+                continue
+            used[i] = True
+            self.breaktrack(nums, temp + [nums[i]], result, used)
+            used[i] = False
+
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        result = []
+        self.breaktrack(nums, [], result, [False] * len(nums))
+        return result
+```
+
+
+
+### 1101 - 二叉树的层序遍历 II<a id="p1101"></a>
+
+#### 问题
+
+给你二叉树的根节点 `root` ，返回其节点值 **自底向上的层序遍历** 。 （即按从叶子节点所在层到根节点所在的层，逐层从左向右遍历）
+
+ 
+
+**示例 1：**
+
+![img](./assets/tree1-1710675771006-1.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：[[15,7],[9,20],[3]]
+```
+
+**示例 2：**
+
+```
+输入：root = [1]
+输出：[[1]]
+```
+
+**示例 3：**
+
+```
+输入：root = []
+输出：[]
+```
+
+ 
+
+#### 解法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
+        # 偷懒
+        if not root:
+            return []
+        queue = collections.deque([root])
+        result = []
+        while queue:
+            level = []
+            for _ in range(len(queue)):
+                cur = queue.popleft()
+                level.append(cur.val)
+                if cur.left:
+                    queue.append(cur.left)
+                if cur.right:
+                    queue.append(cur.right)
+            result.append(level)
+        return result[::-1]
+```
+
+
+
+### 1102 - 重新安排行程<a id="p1102"></a>
+
+#### 问题
+
+给你一份航线列表 `tickets` ，其中 `tickets[i] = [fromi, toi]` 表示飞机出发和降落的机场地点。请你对该行程进行重新规划排序。
+
+所有这些机票都属于一个从 `JFK`（肯尼迪国际机场）出发的先生，所以该行程必须从 `JFK` 开始。如果存在多种有效的行程，请你按字典排序返回最小的行程组合。
+
+- 例如，行程 `["JFK", "LGA"]` 与 `["JFK", "LGB"]` 相比就更小，排序更靠前。
+
+假定所有机票至少存在一种合理的行程。且所有的机票 必须都用一次 且 只能用一次。
+
+ 
+
+**示例 1：**
+
+![img](./assets/itinerary1-graph.jpg)
+
+```
+输入：tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+输出：["JFK","MUC","LHR","SFO","SJC"]
+```
+
+**示例 2：**
+
+![img](./assets/itinerary2-graph.jpg)
+
+```
+输入：tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+输出：["JFK","ATL","JFK","SFO","ATL","SFO"]
+解释：另一种有效的行程是 ["JFK","SFO","ATL","JFK","ATL","SFO"] ，但是它字典排序更大更靠后。
+```
+
+ 
+
+#### 解法
+
+暴力
+
+```python
+class Solution:
+    def Judgerode(self, tickets, start):
+        temp = []
+        for i in range(len(tickets)):
+            if tickets[i][0] == start:
+                temp.append(tickets[i])
+                return True
+        return False
+
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        from collections import deque
+        # 寻找头节点，筛选字典
+        tickets.sort()
+        tickets = collections.deque(tickets)
+        result = ["JFK"]
+        used = [False] * len(tickets)
+        while tickets:
+            start = result[-1]
+            temp = collections.deque()
+            for i in range(len(tickets)):
+                # 如果起点是上一个终点，将终点纳入
+                if tickets[i][0] == start:
+                    temp.append(tickets[i])
+            # 判断下一个节点在剩余票数不为空的情况下是否有路
+            # 特殊处理最后一个节点
+            for i in temp:
+                # 在剩余机票不为空的情况下，
+                if self.Judgerode(tickets, i[-1]) or len(tickets) == 1:
+                    tickets.remove(i)
+                    result.append(i[-1])
+                    break
+        return result
+```
+
+回溯 使用字典 逆序
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def findItinerary(self, tickets):
+        targets = defaultdict(list)  # 创建默认字典，用于存储机场映射关系
+        for ticket in tickets:
+            targets[ticket[0]].append(ticket[1])  # 将机票输入到字典中
+        
+        for key in targets:
+            targets[key].sort(reverse=True)  # 对到达机场列表进行字母逆序排序
+        
+        result = []
+        self.backtracking("JFK", targets, result)  # 调用回溯函数开始搜索路径
+        return result[::-1]  # 返回逆序的行程路径
+    
+    def backtracking(self, airport, targets, result):
+        while targets[airport]:  # 当机场还有可到达的机场时
+            next_airport = targets[airport].pop()  # 弹出下一个机场
+            self.backtracking(next_airport, targets, result)  # 递归调用回溯函数进行深度优先搜索
+        result.append(airport)  # 将当前机场添加到行程路径中
