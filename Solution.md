@@ -8083,3 +8083,266 @@ class Solution:
             next_airport = targets[airport].pop()  # 弹出下一个机场
             self.backtracking(next_airport, targets, result)  # 递归调用回溯函数进行深度优先搜索
         result.append(airport)  # 将当前机场添加到行程路径中
+
+```
+
+
+
+### 1103 - N皇后<a id="p1102"></a>
+
+#### 问题
+
+按照国际象棋的规则，皇后可以攻击与之处在同一行或同一列或同一斜线上的棋子。
+
+**n 皇后问题** 研究的是如何将 `n` 个皇后放置在 `n×n` 的棋盘上，并且使皇后彼此之间不能相互攻击。
+
+给你一个整数 `n` ，返回所有不同的 **n 皇后问题** 的解决方案。
+
+每一种解法包含一个不同的 **n 皇后问题** 的棋子放置方案，该方案中 `'Q'` 和 `'.'` 分别代表了皇后和空位。
+
+ 
+
+**示例 1：**
+
+![img](./assets/queens.jpg)
+
+```
+输入：n = 4
+输出：[[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+解释：如上图所示，4 皇后问题存在两个不同的解法。
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：[["Q"]]
+```
+
+ 
+
+#### 解法
+
+回溯模板
+
+思路：将n*n大小的二维数组，全部赋值为0，然后使用回溯即可，每次棋盘发生变化，即实时将棋盘更新：即将同列、同斜线的位置赋值为”.“（同行不需要更改，一是方便回溯，二是后续必定为”.“），最后得到的结果必定为所求，再根据得到的”Q“、”.“数组转换成字符串即可。
+
+注意：对于方法的传参，如果是数组的话，传递的会是内存地址，也就是相当于C语言的指针。
+
+对于列表里面掺列表，使用`copy`库的深拷贝功能即可将值完全复制。
+
+```python
+import copy
+class Solution:
+    import copy
+    def breaktrack(self, n, temp, result, Index):
+        def refresh(temp, x, y, n):
+            # 只处理同列,同斜线即可
+            # 处理同列
+            for i in range(n):
+                if temp[i][y] == 1:
+                    return
+                temp[i][y] = "."
+            # 处理斜线,向左下角和右上角延申
+            # up, down, left, right = x - 1, x + 1, y - 1, y + 1
+            # 先处理左上角
+            up, left = x - 1, y - 1
+            while up > -1 and left > -1:
+                if temp[up][left] == "Q":
+                    return
+                temp[up][left] = "."
+                up, left = up - 1, left - 1
+            # 处理右上角
+            up, right = x - 1, y + 1
+            while up > -1 and right < n:
+                if temp[up][right] == 'Q':
+                    return
+                temp[up][right] = "."
+                up, right = up -1, right + 1
+            # 处理左下角
+            down, left = x + 1, y - 1
+            while down < n and left > -1:
+                if temp[down][left] == "Q":
+                    return
+                temp[down][left] = "."
+                down, left = down + 1, left - 1
+            # 再处理右下角
+            down, right = x + 1, y + 1
+            while down < n and right < n:
+                if temp[down][right] == "Q":
+                    return
+                temp[down][right] = "."
+                down, right = down + 1, right + 1
+            return temp
+
+        if Index == n:
+            result.append(temp[:])
+            return
+        for i in range(n):
+            # 传入坐标判断该位置是否合法
+            # Index就是x, i就是y
+            if temp[Index][i] == 0:
+                new_temp = copy.deepcopy(refresh(copy.deepcopy(temp), Index, i, n))
+                if not new_temp:
+                    continue
+                new_temp[Index][i] = "Q"
+                self.breaktrack(n, new_temp, result, Index + 1)
+
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        # 不能出现同行、同列、同斜线，可以使用一个二维数组规避坐标
+        # 实时更新规避数组或每次判断    这里使用规避数组
+        # 要么同数组规避，要么本数组规避
+        # 先本数组更新
+        result = []
+        # 空的为0,有棋子的地方置为1,不可占用的位置即为-1
+        temp = [[0] * n for _ in range(n)]
+        self.breaktrack(n, temp, result, 0)
+        # 这里需要再对result进行处理
+        for i in range(len(result)):
+            for j in range(len(result[i])):
+                result[i][j] = "".join(result[i][j])
+        return result
+```
+
+代码随想录的做法：验证当前棋盘状态是否合法，比上述解法要快一点。参考：[代码随想录](https://www.programmercarl.com/0051.N皇后.html#算法公开课)
+
+```python
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        result = []  # 存储最终结果的二维字符串数组
+
+        chessboard = ['.' * n for _ in range(n)]  # 初始化棋盘
+        self.backtracking(n, 0, chessboard, result)  # 回溯求解
+        return [[''.join(row) for row in solution] for solution in result]  # 返回结果集
+
+    def backtracking(self, n: int, row: int, chessboard: List[str], result: List[List[str]]) -> None:
+        if row == n:
+            result.append(chessboard[:])  # 棋盘填满，将当前解加入结果集
+            return
+
+        for col in range(n):
+            if self.isValid(row, col, chessboard):
+                chessboard[row] = chessboard[row][:col] + 'Q' + chessboard[row][col+1:]  # 放置皇后
+                self.backtracking(n, row + 1, chessboard, result)  # 递归到下一行
+                chessboard[row] = chessboard[row][:col] + '.' + chessboard[row][col+1:]  # 回溯，撤销当前位置的皇后
+
+    def isValid(self, row: int, col: int, chessboard: List[str]) -> bool:
+        # 检查列
+        for i in range(row):
+            if chessboard[i][col] == 'Q':
+                return False  # 当前列已经存在皇后，不合法
+
+        # 检查 45 度角是否有皇后
+        i, j = row - 1, col - 1
+        while i >= 0 and j >= 0:
+            if chessboard[i][j] == 'Q':
+                return False  # 左上方向已经存在皇后，不合法
+            i -= 1
+            j -= 1
+
+        # 检查 135 度角是否有皇后
+        i, j = row - 1, col + 1
+        while i >= 0 and j < len(chessboard):
+            if chessboard[i][j] == 'Q':
+                return False  # 右上方向已经存在皇后，不合法
+            i -= 1
+            j += 1
+
+        return True  # 当前位置合法
+```
+
+
+
+### 1104 - 解数独<a id="p1104"></a>
+
+#### 问题
+
+编写一个程序，通过填充空格来解决数独问题。
+
+数独的解法需 **遵循如下规则**：
+
+1. 数字 `1-9` 在每一行只能出现一次。
+2. 数字 `1-9` 在每一列只能出现一次。
+3. 数字 `1-9` 在每一个以粗实线分隔的 `3x3` 宫内只能出现一次。（请参考示例图）
+
+数独部分空格内已填入了数字，空白格用 `'.'` 表示。
+
+ 
+
+**示例 1：**
+
+![img](./assets/250px-sudoku-by-l2g-20050714svg.png)
+
+```
+输入：board = [["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]
+输出：[["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]]
+解释：输入的数独如上图所示，唯一有效的解决方案如下所示： 
+```
+
+![img](./assets/250px-sudoku-by-l2g-20050714_solutionsvg.png)
+
+
+
+#### 解法
+
+参考：[代码随想录 ](https://www.programmercarl.com/0037.解数独.html#算法公开课)
+
+最开始的思路时通过模板解决，但是出现一个问题：如果遇到思路无法回溯，错误方法的参考如下
+
+```python
+def breaktrack(self, board, Index, startIndex):
+        if Index == 9:
+            return
+        if startIndex == 9:
+            self.breaktrack(board, Index + 1, 0)
+        else:
+            if board[Index][startIndex] == ".":
+                for num in range(1, 10):
+                    board[Index][startIndex] = num
+                    self.breaktrack(board, Index, startIndex + 1)
+            else:
+                self.breaktrack(board, Index, startIndex + 1)
+```
+
+上述代码是无法回返的，所以参考代码随想录的思路：
+
+
+
+```python
+class Solution:
+    # 判断当前位置是否合法
+    def judgelocation(self, board, Index, x, num):
+        # 同行，同列不能有相同的值
+        for i in range(9):
+            if board[Index][i] == num or board[i][x] == num:
+                return False
+        # 所处九宫格内不能包含相同数字
+        # 判断在第几个九宫格内
+        start_x, start_y = (x // 3) * 3, (Index // 3) * 3
+        for i in range(start_y, start_y + 3):
+            for j in range(start_x, start_x + 3):
+                if board[i][j] == num:
+                    return False
+        return True
+
+    def breaktrack(self, board):
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] != ".":
+                    continue
+                for k in range(1, 10):
+                    if self.judgelocation(board, i, j, str(k)):
+                        board[i][j] = str(k)
+                        if self.breaktrack(board):
+                            # 如果找到合适一组立刻返回
+                            return True
+                        board[i][j] = "."
+                # 若数字1-9都不能成功填入空格，返回False无解
+                return False
+        # 遍历完没有返回false，说明找到了合适棋盘位置了
+        return True
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        # 回溯验证当前棋盘状态是否合法即可
+        self.breaktrack(board)
+```
+
