@@ -246,6 +246,14 @@ LeetCode：100x
 
 
 
+#### 贪心
+
+[1105 - 分发饼干](#p1105)
+
+[1106 - 摆动序列](#p1106)
+
+
+
 #### 动态规划
 
 [1015 - 爬楼梯](#p1015)
@@ -8344,5 +8352,247 @@ class Solution:
     def solveSudoku(self, board: List[List[str]]) -> None:
         # 回溯验证当前棋盘状态是否合法即可
         self.breaktrack(board)
+```
+
+
+
+### 1105 - 分发饼干<a id="p1105"></a>
+
+问题
+
+假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。
+
+对每个孩子 `i`，都有一个胃口值 `g[i]`，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 `j`，都有一个尺寸 `s[j]` 。如果 `s[j] >= g[i]`，我们可以将这个饼干 `j` 分配给孩子 `i` ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。
+
+ 
+
+**示例 1:**
+
+```
+输入: g = [1,2,3], s = [1,1]
+输出: 1
+解释: 
+你有三个孩子和两块小饼干，3个孩子的胃口值分别是：1,2,3。
+虽然你有两块小饼干，由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
+所以你应该输出1。
+```
+
+**示例 2:**
+
+```
+输入: g = [1,2], s = [1,2,3]
+输出: 2
+解释: 
+你有两个孩子和三块小饼干，2个孩子的胃口值分别是1,2。
+你拥有的饼干数量和尺寸都足以让所有孩子满足。
+所以你应该输出2.
+```
+
+ 
+
+#### 解法
+
+先满足小的，此时需要遍历饼干，则此时移动的是饼干，不动的是小孩。
+
+```python
+class Solution:
+    def findContentChildren(self, g: List[int], s: List[int]) -> int:
+        # 先从最小的开始满足
+        result = 0
+        g.sort()
+        s.sort()
+        child = 0
+        for biscuit in s:
+            if child < len(g) and g[child] <= biscuit:
+                result += 1
+                child += 1
+        return result
+```
+
+先满足大的，需要遍历小孩，此时移动的饼干，小孩不动。
+
+```python
+class Solution:
+    def findContentChildren(self, g: List[int], s: List[int]) -> int:
+        # 先满足大的
+        s.sort()
+        g.sort()
+        biscuit = len(s) - 1
+        result = 0
+        for child in g[::-1]:
+            if biscuit > -1 and child <= s[biscuit]:
+                result += 1
+                biscuit -= 1
+        return result
+```
+
+
+
+### 1106 - 摆动序列<a id="p1106"></a>
+
+#### 问题
+
+如果连续数字之间的差严格地在正数和负数之间交替，则数字序列称为 **摆动序列 。**第一个差（如果存在的话）可能是正数或负数。仅有一个元素或者含两个不等元素的序列也视作摆动序列。
+
+- 例如， `[1, 7, 4, 9, 2, 5]` 是一个 **摆动序列** ，因为差值 `(6, -3, 5, -7, 3)` 是正负交替出现的。
+- 相反，`[1, 4, 7, 2, 5]` 和 `[1, 7, 4, 5, 5]` 不是摆动序列，第一个序列是因为它的前两个差值都是正数，第二个序列是因为它的最后一个差值为零。
+
+**子序列** 可以通过从原始序列中删除一些（也可以不删除）元素来获得，剩下的元素保持其原始顺序。
+
+给你一个整数数组 `nums` ，返回 `nums` 中作为 **摆动序列** 的 **最长子序列的长度** 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,7,4,9,2,5]
+输出：6
+解释：整个序列均为摆动序列，各元素之间的差值为 (6, -3, 5, -7, 3) 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,17,5,10,13,15,10,5,16,8]
+输出：7
+解释：这个序列包含几个长度为 7 摆动序列。
+其中一个是 [1, 17, 10, 13, 10, 16, 8] ，各元素之间的差值为 (16, -7, 3, -3, 6, -8) 。
+```
+
+**示例 3：**
+
+```
+输入：nums = [1,2,3,4,5,6,7,8,9]
+输出：2
+```
+
+ 
+
+#### 解法
+
+直接计算：先求出差值数组，再根据差值数组处理即可，问题在于其中的0很难处理。
+
+```python
+class Solution:    
+    def wiggleMaxLength(self, nums: List[int]) -> int:
+        if len(nums) == 1:
+            return len(nums)
+        # 计算差值列表
+        new_nums = []
+        for i in range(1, len(nums)):
+            new_nums.append(nums[i] - nums[i - 1])
+        while 0 in new_nums:
+            new_nums.remove(0)
+        if not new_nums:
+            return 1
+        result = len(new_nums) + 1
+        if new_nums[0] == 0:
+            result -= 1
+        for i in range(1, len(new_nums)):
+            if (new_nums[i] > 0 and new_nums[i - 1] > 0) or (new_nums[i] < 0 and new_nums[i - 1] < 0):
+                result -= 1
+            if new_nums[i] == 0:
+                result -= 2
+        return result
+```
+
+将问题转化为数学问题即可：这里的摆动序列，实际上就是均是极大值或极小值即可，那么怎么处理呢？只要将所有非极值的点去掉即可，剩下的节点数量就是最终答案。
+
+该思路由代码随想录提供：[代码随想录 ](https://www.programmercarl.com/0376.摆动序列.html#思路)
+
+```python
+class Solution:
+    def wiggleMaxLength(self, nums):
+        if len(nums) <= 1:
+            return len(nums)  # 如果数组长度为0或1，则返回数组长度
+        curDiff = 0  # 当前一对元素的差值
+        preDiff = 0  # 前一对元素的差值
+        result = 1  # 记录峰值的个数，初始为1（默认最右边的元素被视为峰值）
+        for i in range(len(nums) - 1):
+            curDiff = nums[i + 1] - nums[i]  # 计算下一个元素与当前元素的差值
+            # 如果遇到一个峰值
+            if (preDiff <= 0 and curDiff > 0) or (preDiff >= 0 and curDiff < 0):
+                result += 1  # 峰值个数加1
+                preDiff = curDiff  # 注意这里，只在摆动变化的时候更新preDiff
+        return result  # 返回最长摆动子序列的长度
+```
+
+另一种判断方法
+
+```python
+class Solution:
+    def wiggleMaxLength(self, nums: List[int]) -> int:
+        if len(nums) <= 1:
+            return len(nums)  # 如果数组长度为0或1，则返回数组长度
+        preDiff,curDiff ,result  = 0,0,1  #题目里nums长度大于等于1，当长度为1时，其实到不了for循环里去，所以不用考虑nums长度
+        for i in range(len(nums) - 1):
+            curDiff = nums[i + 1] - nums[i]
+            if curDiff * preDiff <= 0 and curDiff !=0:  #差值为0时，不算摆动
+                result += 1
+                preDiff = curDiff  #如果当前差值和上一个差值为一正一负时，才需要用当前差值替代上一个差值
+        return result
+```
+
+
+
+### 1107 - 最大子数组和<a id="p1107"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+
+
+**子数组**
+
+是数组中的一个连续部分。
+
+
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1]
+输出：1
+```
+
+**示例 3：**
+
+```
+输入：nums = [5,4,-1,7,8]
+输出：23
+```
+
+ 
+
+#### 解法
+
+> 局部最优：当前“连续和”为负数的时候立刻放弃，从下一个元素重新计算“连续和”，因为负数加上下一个元素 “连续和”只会越来越小。
+>
+> 全局最优：选取最大“连续和”
+
+```python
+class Solution:
+    def maxSubArray(self, nums):
+        result = float('-inf')  # 初始化结果为负无穷大
+        count = 0
+        for i in range(len(nums)):
+            count += nums[i]
+            if count > result:  # 取区间累计的最大值（相当于不断确定最大子序终止位置）
+                result = count
+            if count <= 0:  # 相当于重置最大子序起始位置，因为遇到负数一定是拉低总和
+                count = 0
+        return result
 ```
 
