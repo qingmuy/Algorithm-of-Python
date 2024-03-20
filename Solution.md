@@ -252,6 +252,16 @@ LeetCode：100x
 
 [1106 - 摆动序列](#p1106)
 
+[1108 - 买卖股票的最佳时机 II](#p1108)
+
+[1110 - 跳跃游戏 II](#p)
+
+[1111 - K次取反后最大化的数组和](#p1111)
+
+[1112 - 加油站](#p1112)
+
+[1113 - 柠檬水找零](#p1113)
+
 
 
 #### 动态规划
@@ -8594,5 +8604,474 @@ class Solution:
             if count <= 0:  # 相当于重置最大子序起始位置，因为遇到负数一定是拉低总和
                 count = 0
         return result
+```
+
+
+
+### 1108 - 买卖股票的最佳时机 II<a id="p1108"></a>
+
+#### 问题
+
+给你一个整数数组 `prices` ，其中 `prices[i]` 表示某支股票第 `i` 天的价格。
+
+在每一天，你可以决定是否购买和/或出售股票。你在任何时候 **最多** 只能持有 **一股** 股票。你也可以先购买，然后在 **同一天** 出售。
+
+返回 *你能获得的 **最大** 利润* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：prices = [7,1,5,3,6,4]
+输出：7
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4 。
+     随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3 。
+     总利润为 4 + 3 = 7 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4 。
+     总利润为 4 。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 交易无法获得正利润，所以不参与交易可以获得最大利润，最大利润为 0 。
+```
+
+ 
+
+#### 解法
+
+局部最优：低价买入，高价卖出，每日更新最低价格
+
+全局最优：求总和
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 低价买入，高价卖出
+        # 局部最优：遇到上涨卖出，遇到下跌重新计数
+        result = 0
+        min_price = float("inf")
+        for i ina range(len(prices)):
+            if prices[i] < min_price:
+                min_price = prices[i]
+            elif prices[i] > min_price:
+                result += prices[i] - min_price
+                min_price = prices[i]
+        return result
+```
+
+利润可以分解，比如周一买周三卖，可以换算成周一买，周二卖，周二买，周三卖，最后只统计正数结果即可。
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        result = 0
+        for i in range(1, len(prices)):
+            result += max(prices[i] - prices[i - 1], 0)
+        return result
+```
+
+
+
+### 1109 - 跳跃游戏<a id="p1109"></a>
+
+#### 问题
+
+给你一个非负整数数组 `nums` ，你最初位于数组的 **第一个下标** 。数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个下标，如果可以，返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [2,3,1,1,4]
+输出：true
+解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,2,1,0,4]
+输出：false
+解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。
+```
+
+ 
+
+#### 解法
+
+不需要模拟，只需要记录最大覆盖范围即可。
+
+使用for循环记录最大覆盖范围：
+
+```python
+## for循环
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        cover = 0
+        if len(nums) == 1: return True
+        for i in range(len(nums)):
+            if i <= cover:
+                cover = max(i + nums[i], cover)
+                if cover >= len(nums) - 1: return True
+        return False
+```
+
+使用While循环计算覆盖范围，那么while循环的条件就是索引不得超过覆盖范围。
+
+```python
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        cover = 0
+        if len(nums) == 1: return True
+        i = 0
+        # 动态更新最大覆盖范围即可。
+        while i <= cover:
+            cover = max(i + nums[i], cover)
+            if cover >= len(nums) - 1: return True
+            i += 1
+        return False
+```
+
+
+
+### 1110 - 跳跃游戏 II<a id="p1110"></a>
+
+#### 问题
+
+给定一个长度为 `n` 的 **0 索引**整数数组 `nums`。初始位置为 `nums[0]`。
+
+每个元素 `nums[i]` 表示从索引 `i` 向前跳转的最大长度。换句话说，如果你在 `nums[i]` 处，你可以跳转到任意 `nums[i + j]` 处:
+
+- `0 <= j <= nums[i]` 
+- `i + j < n`
+
+返回到达 `nums[n - 1]` 的最小跳跃次数。生成的测试用例可以到达 `nums[n - 1]`。
+
+ 
+
+**示例 1:**
+
+```
+输入: nums = [2,3,1,1,4]
+输出: 2
+解释: 跳到最后一个位置的最小跳跃数是 2。
+     从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+```
+
+**示例 2:**
+
+```
+输入: nums = [2,3,0,1,4]
+输出: 2
+```
+
+ 
+
+#### 解法
+
+每当最大覆盖范围更新后，即将步数加一
+
+```python
+class Solution:
+    def jump(self, nums: List[int]) -> int:
+        if len(nums) == 1:
+            return 0
+        # 局部最优：最大覆盖区域，最大覆盖区域内部的节点的最大覆盖区域，真贪心
+        # 全局最优：计算cover更新次数
+        result = 0
+        cur, next_ = 0, 0
+        for i in range(len(nums)):
+            next_ = max(next_, i + nums[i])
+            if i == cur:
+                result += 1
+                cur = next_
+                if cur >= len(nums) - 1:
+                    break
+        return result
+```
+
+
+
+### 1111 - K次取反后最大化的数组和<a id="p1111"></a>
+
+#### 问题
+
+给你一个整数数组 `nums` 和一个整数 `k` ，按以下方法修改该数组：
+
+- 选择某个下标 `i` 并将 `nums[i]` 替换为 `-nums[i]` 。
+
+重复这个过程恰好 `k` 次。可以多次选择同一个下标 `i` 。
+
+以这种方式修改数组后，返回数组 **可能的最大和** 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [4,2,3], k = 1
+输出：5
+解释：选择下标 1 ，nums 变为 [4,-2,3] 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,-1,0,2], k = 3
+输出：6
+解释：选择下标 (1, 2, 2) ，nums 变为 [3,1,0,2] 。
+```
+
+**示例 3：**
+
+```
+输入：nums = [2,-3,-1,5,-4], k = 2
+输出：13
+解释：选择下标 (1, 4) ，nums 变为 [2,3,-1,5,4] 。
+```
+
+ 
+
+#### 解法
+
+依照条件判断即可
+
+```python
+class Solution:
+    def largestSumAfterKNegations(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        # 如果有负数，优先将负数调整为整数，没有负数的时候，将初始值修改
+        index = 0
+        while k > 0:
+            if index >= len(nums) or nums[index] > 0:
+                nums.sort()
+                # 优化部分
+                while k > 0:
+                    nums[0] = nums[0] * -1
+                    k -= 1
+                break
+            elif nums[index] < 0:
+                nums[index] = nums[index] * -1
+                index += 1
+                k -= 1
+            # 优化部分
+            elif nums[index] == 0:
+                break
+        return sum(nums)
+```
+
+
+
+### 1112 - 加油站<a id="p1112"></a>
+
+#### 问题
+
+在一条环路上有 `n` 个加油站，其中第 `i` 个加油站有汽油 `gas[i]` 升。
+
+你有一辆油箱容量无限的的汽车，从第 `i` 个加油站开往第 `i+1` 个加油站需要消耗汽油 `cost[i]` 升。你从其中的一个加油站出发，开始时油箱为空。
+
+给定两个整数数组 `gas` 和 `cost` ，如果你可以按顺序绕环路行驶一周，则返回出发时加油站的编号，否则返回 `-1` 。如果存在解，则 **保证** 它是 **唯一** 的。
+
+ 
+
+**示例 1:**
+
+```
+输入: gas = [1,2,3,4,5], cost = [3,4,5,1,2]
+输出: 3
+解释:
+从 3 号加油站(索引为 3 处)出发，可获得 4 升汽油。此时油箱有 = 0 + 4 = 4 升汽油
+开往 4 号加油站，此时油箱有 4 - 1 + 5 = 8 升汽油
+开往 0 号加油站，此时油箱有 8 - 2 + 1 = 7 升汽油
+开往 1 号加油站，此时油箱有 7 - 3 + 2 = 6 升汽油
+开往 2 号加油站，此时油箱有 6 - 4 + 3 = 5 升汽油
+开往 3 号加油站，你需要消耗 5 升汽油，正好足够你返回到 3 号加油站。
+因此，3 可为起始索引。
+```
+
+**示例 2:**
+
+```
+输入: gas = [2,3,4], cost = [3,4,3]
+输出: -1
+解释:
+你不能从 0 号或 1 号加油站出发，因为没有足够的汽油可以让你行驶到下一个加油站。
+我们从 2 号加油站出发，可以获得 4 升汽油。 此时油箱有 = 0 + 4 = 4 升汽油
+开往 0 号加油站，此时油箱有 4 - 3 + 2 = 3 升汽油
+开往 1 号加油站，此时油箱有 3 - 3 + 3 = 3 升汽油
+你无法返回 2 号加油站，因为返程需要消耗 4 升汽油，但是你的油箱只有 3 升汽油。
+因此，无论怎样，你都不可能绕环路行驶一周。
+```
+
+ 
+
+#### 解法
+
+暴力解法，超时，但是通过测试用例不少。
+
+```python
+class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+        for start in range(len(gas)):
+            # 初始油量
+            power = gas[start] - cost[(start)]
+            index = (start + 1) % len(gas)
+            while index != start and power > 0:
+                power = power + gas[index] - cost[index]
+                index = (index + 1) % len(gas)
+            if index == start and power >= 0:
+                return start
+        return -1
+```
+
+这个思路来自于代码随想录，构成即为巧妙。
+
+从零节点开始统计：旅途的最小油量、最终的剩余油量。
+
+通过最终的剩余油量可以统计，一圈的耗油量大还是补油量大。
+
+通过最小油量判断从当前节点出发是否可以完成一圈（如果最小的油量是负数就证明从当前的节点出发不能完成一圈）
+
+当最小油量为负数时，可以倒退循环，并且将那一天的剩余油量和最小油量相加，如果为负数就继续倒退，如果最后为正数就说明该节点出发可以完成一圈。
+
+因为倒退的过程中也在完善最小油量，无论如何是要完成一圈的，所以只要最小油量并非负数即可。
+
+```python
+class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+        curSum = 0  # 当前累计的剩余油量
+        minFuel = float('inf')  # 从起点出发，油箱里的油量最小值
+        
+        for i in range(len(gas)):
+            rest = gas[i] - cost[i]
+            curSum += rest
+            if curSum < minFuel:
+                minFuel = curSum
+        
+        if curSum < 0:
+            return -1  # 情况1：整个行程的总消耗大于总供给，无法完成一圈
+        
+        if minFuel >= 0:
+            return 0  # 情况2：从起点出发到任何一个加油站时油箱的剩余油量都不会小于0，可以从起点出发完成一圈
+        
+        for i in range(len(gas) - 1, -1, -1):
+            rest = gas[i] - cost[i]
+            minFuel += rest
+            if minFuel >= 0:
+                return i  # 情况3：找到一个位置使得从该位置出发油箱的剩余油量不会小于0，返回该位置的索引
+        
+        return -1  # 无法完成一圈
+```
+
+真•贪心
+
+参考：[代码随想录 ](https://www.programmercarl.com/0134.加油站.html#思路)
+
+从头开始遍历，记录当前的剩余油量和最终油量。
+
+一旦当前的剩余油量是负数，则证明从上一个起始节点开始到当前节点的任何一个点都不能完成一圈，因为到当前节点必定为负数；所以需要再从当前节点+1开始遍历，最终结束，如果最后最终油量是负数证明无论如何也不能完成一圈。
+
+```python
+class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+        curSum = 0  # 当前累计的剩余油量
+        totalSum = 0  # 总剩余油量
+        start = 0  # 起始位置
+        
+        for i in range(len(gas)):
+            curSum += gas[i] - cost[i]
+            totalSum += gas[i] - cost[i]
+            
+            if curSum < 0:  # 当前累计剩余油量curSum小于0
+                start = i + 1  # 起始位置更新为i+1
+                curSum = 0  # curSum重新从0开始累计
+        
+        if totalSum < 0:
+            return -1  # 总剩余油量totalSum小于0，说明无法环绕一圈
+        return start
+```
+
+
+
+### 1113 - 柠檬水找零<a id="p1113"></a>
+
+#### 问题
+
+在柠檬水摊上，每一杯柠檬水的售价为 `5` 美元。顾客排队购买你的产品，（按账单 `bills` 支付的顺序）一次购买一杯。
+
+每位顾客只买一杯柠檬水，然后向你付 `5` 美元、`10` 美元或 `20` 美元。你必须给每个顾客正确找零，也就是说净交易是每位顾客向你支付 `5` 美元。
+
+注意，一开始你手头没有任何零钱。
+
+给你一个整数数组 `bills` ，其中 `bills[i]` 是第 `i` 位顾客付的账。如果你能给每位顾客正确找零，返回 `true` ，否则返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：bills = [5,5,5,10,20]
+输出：true
+解释：
+前 3 位顾客那里，我们按顺序收取 3 张 5 美元的钞票。
+第 4 位顾客那里，我们收取一张 10 美元的钞票，并返还 5 美元。
+第 5 位顾客那里，我们找还一张 10 美元的钞票和一张 5 美元的钞票。
+由于所有客户都得到了正确的找零，所以我们输出 true。
+```
+
+**示例 2：**
+
+```
+输入：bills = [5,5,10,10,20]
+输出：false
+解释：
+前 2 位顾客那里，我们按顺序收取 2 张 5 美元的钞票。
+对于接下来的 2 位顾客，我们收取一张 10 美元的钞票，然后返还 5 美元。
+对于最后一位顾客，我们无法退回 15 美元，因为我们现在只有两张 10 美元的钞票。
+由于不是每位顾客都得到了正确的找零，所以答案是 false。
+```
+
+
+
+#### 解法
+
+注意，顾客购买是有顺序的，必须以当时的余额还清。
+
+```python
+class Solution:
+    def lemonadeChange(self, bills: List[int]) -> bool:
+        five, ten = 0, 0
+        for i in bills:
+            if i == 5:
+                five += 1
+            elif i == 10:
+                if five == 0:
+                    return False
+                ten += 1
+                five -= 1
+            elif i == 20:
+                if five > 0 and ten > 0:
+                    ten -= 1
+                    five -= 1
+                elif five >= 3:
+                    five -= 3
+                else:
+                    return False
+        return True
 ```
 
