@@ -270,6 +270,10 @@ LeetCode：100x
 
 [1117 - 无重叠区间](#p1117)
 
+[1118 - 划分字母区间](#p1118)
+
+[1119 - 合并区间](#p1119)
+
 
 
 #### 动态规划
@@ -9345,5 +9349,285 @@ class Solution:
                 result += 1
                 intervals[i][1] = min(intervals[i][1], intervals[i - 1][1])
         return result
+```
+
+
+
+### 1118 - 划分字母区间<a id="p1118"></a>
+
+#### 问题
+
+给你一个字符串 `s` 。我们要把这个字符串划分为尽可能多的片段，同一字母最多出现在一个片段中。
+
+注意，划分结果需要满足：将所有划分结果按顺序连接，得到的字符串仍然是 `s` 。
+
+返回一个表示每个字符串片段的长度的列表。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "ababcbacadefegdehijhklij"
+输出：[9,7,8]
+解释：
+划分结果为 "ababcbaca"、"defegde"、"hijhklij" 。
+每个字母最多出现在一个片段中。
+像 "ababcbacadefegde", "hijhklij" 这样的划分是错误的，因为划分的片段数较少。 
+```
+
+**示例 2：**
+
+```
+输入：s = "eccbbbbdec"
+输出：[10]
+```
+
+ 
+
+#### 解法
+
+比以前的问题多了一道工序：求出字母的出现的起末位置，然后利用重复区间解决即可。
+
+```python
+class Solution:
+    def partitionLabels(self, s: str) -> List[int]:
+        # 使用collections模块中的defaultdict字典进行优化
+        from collections import defaultdict
+        # 求出每个字母的起始和结束位置
+        dirt = defaultdict(list)
+        for i in range(len(s)):
+            if s[i] not in dirt:
+                dirt[s[i]] = [i, i]
+            else:
+                dirt.get(s[i])[1] = i
+        # 处理后的字母列表
+        letter = []
+        for i in dirt.values():
+            letter.append(i)
+
+        result = []
+        l, r = letter[0][0], letter[0][1]
+        for i in letter:
+            # 如果冲突就更新边界
+            if i[0] < r:
+                r = max(r, i[1])
+            elif i[0] > r:
+                result.append(r - l + 1)
+                l, r = i[0], i[1]
+        result.append(r - l + 1)
+        return result
+```
+
+
+
+### 1119 - 合并区间<a id="p1119"></a>
+
+#### 问题
+
+以数组 `intervals` 表示若干个区间的集合，其中单个区间为 `intervals[i] = [starti, endi]` 。请你合并所有重叠的区间，并返回 *一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+```
+
+**示例 2：**
+
+```
+输入：intervals = [[1,4],[4,5]]
+输出：[[1,5]]
+解释：区间 [1,4] 和 [4,5] 可被视为重叠区间。
+```
+
+ 
+
+#### 解法
+
+重复区间问题
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        result = []
+        intervals.sort()
+        l, r = intervals[0][0], intervals[0][1]
+        for i in intervals:
+            if i[0] <= r:
+                r = max(r, i[1])
+            else:
+                result.append([l, r])
+                l, r = i[0], i[1]
+        result.append([l, r])
+        return result
+```
+
+优化后：不需要中间变量
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        intervals.sort()
+        result = [intervals[0]]
+        for i in range(1, len(intervals)):
+            if result[-1][1] >= intervals[i][0]:
+                result[-1][1] = max(result[-1][1], intervals[i][1])
+            else:
+                result.append(intervals[i])
+        return result
+```
+
+
+
+### 1120 - 单调递增的数字<a id="p1120"></a>
+
+#### 问题
+
+当且仅当每个相邻位数上的数字 `x` 和 `y` 满足 `x <= y` 时，我们称这个整数是**单调递增**的。
+
+给定一个整数 `n` ，返回 *小于或等于 `n` 的最大数字，且数字呈 **单调递增*** 。
+
+ 
+
+**示例 1:**
+
+```
+输入: n = 10
+输出: 9
+```
+
+**示例 2:**
+
+```
+输入: n = 1234
+输出: 1234
+```
+
+**示例 3:**
+
+```
+输入: n = 332
+输出: 299
+```
+
+ 
+
+#### 解法
+
+最后向前遍历，如果遇到不平衡的地方则将以后的值设置为9
+
+```python
+class Solution:
+    def monotoneIncreasingDigits(self, N: int) -> int:
+        # 将整数转换为字符串
+        strNum = str(N)
+        # flag用来标记赋值9从哪里开始
+        # 设置为字符串长度，为了防止第二个for循环在flag没有被赋值的情况下执行
+        flag = len(strNum)
+        
+        # 从右往左遍历字符串
+        for i in range(len(strNum) - 1, 0, -1):
+            # 如果当前字符比前一个字符小，说明需要修改前一个字符
+            if strNum[i - 1] > strNum[i]:
+                flag = i  # 更新flag的值，记录需要修改的位置
+                # 将前一个字符减1，以保证递增性质
+                strNum = strNum[:i - 1] + str(int(strNum[i - 1]) - 1) + strNum[i:]
+        
+        # 将flag位置及之后的字符都修改为9，以保证最大的递增数字
+        strNum = strNum[:flag] + "9" * (len(strNum) - flag)
+        
+        # 将最终的字符串转换回整数并返回
+        return int(strNum)
+```
+
+
+
+### 1121 - 监控二叉树<a id="p1121"></a>
+
+#### 问题
+
+给定一个二叉树，我们在树的节点上安装摄像头。
+
+节点上的每个摄影头都可以监视**其父对象、自身及其直接子对象。**
+
+计算监控树的所有节点所需的最小摄像头数量。
+
+ 
+
+**示例 1：**
+
+![img](./assets/bst_cameras_01.png)
+
+```
+输入：[0,0,null,0,0]
+输出：1
+解释：如图所示，一台摄像头足以监控所有节点。
+```
+
+**示例 2：**
+
+![img](./assets/bst_cameras_02.png)
+
+```
+输入：[0,0,null,0,null,0,null,null,0]
+输出：2
+解释：需要至少两个摄像头来监视树的所有节点。 上图显示了摄像头放置的有效位置之一。
+```
+
+
+
+#### 解法
+
+自上而下判断...
+
+```python
+class Solution:
+         # Greedy Algo:
+        # 从下往上安装摄像头：跳过leaves这样安装数量最少，局部最优 -> 全局最优
+        # 先给leaves的父节点安装，然后每隔两层节点安装一个摄像头，直到Head
+        # 0: 该节点未覆盖
+        # 1: 该节点有摄像头
+        # 2: 该节点有覆盖
+    def minCameraCover(self, root: TreeNode) -> int:
+        # 定义递归函数
+        result = [0]  # 用于记录摄像头的安装数量
+        if self.traversal(root, result) == 0:
+            result[0] += 1
+
+        return result[0]
+
+        
+    def traversal(self, cur: TreeNode, result: List[int]) -> int:
+        if not cur:
+            return 2
+
+        left = self.traversal(cur.left, result)
+        right = self.traversal(cur.right, result)
+
+        # 情况1: 左右节点都有覆盖
+        if left == 2 and right == 2:
+            return 0
+
+        # 情况2:
+        # left == 0 && right == 0 左右节点无覆盖
+        # left == 1 && right == 0 左节点有摄像头，右节点无覆盖
+        # left == 0 && right == 1 左节点无覆盖，右节点有摄像头
+        # left == 0 && right == 2 左节点无覆盖，右节点覆盖
+        # left == 2 && right == 0 左节点覆盖，右节点无覆盖
+        if left == 0 or right == 0:
+            result[0] += 1
+            return 1
+
+        # 情况3:
+        # left == 1 && right == 2 左节点有摄像头，右节点有覆盖
+        # left == 2 && right == 1 左节点有覆盖，右节点有摄像头
+        # left == 1 && right == 1 左右节点都有摄像头
+        if left == 1 or right == 1:
+            return 2
 ```
 
