@@ -290,6 +290,18 @@ LeetCode：100x
 
 [1028 - 买卖股票的最佳时机](#1028)
 
+[1122 - 斐波那契数列](#p1122)
+
+[1123 - 使用最小花费爬楼梯](#p1123)
+
+[1124 - 不同路径](#p1124)
+
+[1125 - 不同路径 II](#p1125)
+
+[1126 - 整数拆分](#p1126)
+
+[1127 - 不同的二叉搜索树](#p1127)
+
 
 
 #### 递归
@@ -9634,3 +9646,428 @@ class Solution:
         if left == 1 or right == 1:
             return 2
 ```
+
+
+
+### 1122 - 斐波那契数列<a id="p1122"></a>
+
+#### 问题
+
+**斐波那契数** （通常用 `F(n)` 表示）形成的序列称为 **斐波那契数列** 。该数列由 `0` 和 `1` 开始，后面的每一项数字都是前面两项数字的和。也就是：
+
+```
+F(0) = 0，F(1) = 1
+F(n) = F(n - 1) + F(n - 2)，其中 n > 1
+```
+
+给定 `n` ，请计算 `F(n)` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 2
+输出：1
+解释：F(2) = F(1) + F(0) = 1 + 0 = 1
+```
+
+**示例 2：**
+
+```
+输入：n = 3
+输出：2
+解释：F(3) = F(2) + F(1) = 1 + 1 = 2
+```
+
+**示例 3：**
+
+```
+输入：n = 4
+输出：3
+解释：F(4) = F(3) + F(2) = 2 + 1 = 3
+```
+
+ 
+
+#### 解法
+
+使用数组存储斐波那契数列，注意处理n小于2的情况
+
+```python
+class Solution:
+    def fib(self, n: int) -> int:
+        if n < 2:
+            return n
+        fib = [0] * (n + 1)
+        fib[1] = 1
+        for i in range(2, n + 1):
+            fib[i] = fib[i - 2] + fib[i - 1]
+        return fib[-1]
+```
+
+不使用数组存储斐波那契数列，直接计算
+
+```python
+class Solution:
+    def fib(self, n: int) -> int:
+        a, b, c = 0, 1, 0
+        if n < 2:
+            return n
+        for i in range(2, n + 1):
+            c = a + b
+            a, b = b, c
+        return c
+```
+
+
+
+### 1123 - 使用最小花费爬楼梯<a id="p1123"></a>
+
+#### 问题
+
+给你一个整数数组 `cost` ，其中 `cost[i]` 是从楼梯第 `i` 个台阶向上爬需要支付的费用。一旦你支付此费用，即可选择向上爬一个或者两个台阶。
+
+你可以选择从下标为 `0` 或下标为 `1` 的台阶开始爬楼梯。
+
+请你计算并返回达到楼梯顶部的最低花费。
+
+ 
+
+**示例 1：**
+
+```
+输入：cost = [10,15,20]
+输出：15
+解释：你将从下标为 1 的台阶开始。
+- 支付 15 ，向上爬两个台阶，到达楼梯顶部。
+总花费为 15 。
+```
+
+**示例 2：**
+
+```
+输入：cost = [1,100,1,1,1,100,1,1,100,1]
+输出：6
+解释：你将从下标为 0 的台阶开始。
+- 支付 1 ，向上爬两个台阶，到达下标为 2 的台阶。
+- 支付 1 ，向上爬两个台阶，到达下标为 4 的台阶。
+- 支付 1 ，向上爬两个台阶，到达下标为 6 的台阶。
+- 支付 1 ，向上爬一个台阶，到达下标为 7 的台阶。
+- 支付 1 ，向上爬两个台阶，到达下标为 9 的台阶。
+- 支付 1 ，向上爬一个台阶，到达楼梯顶部。
+总花费为 6 。
+```
+
+ 
+
+#### 解法
+
+使用dp记录到当前楼层的最小花费
+
+```python
+class Solution:
+    def minCostClimbingStairs(self, cost: List[int]) -> int:
+        # dp 记录到当前的最低消费
+        dp = [0] * (len(cost) + 1)
+        dp[0], dp[1] = 0, 0
+        for i in range(2, len(cost) + 1):
+            dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])
+        return dp[-1]
+```
+
+
+
+### 1124 - 不同路径<a id="p1124"></a>
+
+#### 问题
+
+一个机器人位于一个 `m x n` 网格的左上角 （起始点在下图中标记为 “Start” ）。
+
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。
+
+问总共有多少条不同的路径？
+
+ 
+
+**示例 1：**
+
+![img](./assets/1697422740-adxmsI-image.png)
+
+```
+输入：m = 3, n = 7
+输出：28
+```
+
+**示例 2：**
+
+```
+输入：m = 3, n = 2
+输出：3
+解释：
+从左上角开始，总共有 3 条路径可以到达右下角。
+1. 向右 -> 向下 -> 向下
+2. 向下 -> 向下 -> 向右
+3. 向下 -> 向右 -> 向下
+```
+
+**示例 3：**
+
+```
+输入：m = 7, n = 3
+输出：28
+```
+
+**示例 4：**
+
+```
+输入：m = 3, n = 3
+输出：6
+```
+
+ 
+
+#### 解法
+
+数学计算方法
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # 数学计算
+        sum_index = m + n - 2
+        up, down = 1, 1
+        for i in range(m - 1):
+            up *= (sum_index - i)
+        for i in range(1, m):
+            down *= i
+        return up // down
+```
+
+动态规划
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        # 创建一个二维列表用于存储唯一路径数
+        dp = [[0] * n for _ in range(m)]
+        
+        # 设置第一行和第一列的基本情况
+        for i in range(m):
+            dp[i][0] = 1
+        for j in range(n):
+            dp[0][j] = 1
+        
+        # 计算每个单元格的唯一路径数
+        for i in range(1, m):
+            for j in range(1, n):
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+        
+        # 返回右下角单元格的唯一路径数
+        return dp[m - 1][n - 1]
+```
+
+
+
+### 1125 - 不同路径 II<a id="p1125"></a>
+
+#### 问题
+
+一个机器人位于一个 `m x n` 网格的左上角 （起始点在下图中标记为 “Start” ）。
+
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish”）。
+
+现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
+
+网格中的障碍物和空位置分别用 `1` 和 `0` 来表示。
+
+ 
+
+**示例 1：**
+
+![img](./assets/robot1.jpg)
+
+```
+输入：obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
+输出：2
+解释：3x3 网格的正中间有一个障碍物。
+从左上角到右下角一共有 2 条不同的路径：
+1. 向右 -> 向右 -> 向下 -> 向下
+2. 向下 -> 向下 -> 向右 -> 向右
+```
+
+**示例 2：**
+
+![img](./assets/robot2.jpg)
+
+```
+输入：obstacleGrid = [[0,1],[0,0]]
+输出：1
+```
+
+ 
+
+#### 解法
+
+注意避障即可。
+
+```python
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
+        dp = [[0] * len(obstacleGrid[0]) for _ in range(len(obstacleGrid))]
+
+        for i in range(len(obstacleGrid[0])):
+            if obstacleGrid[0][i] == 1:
+                break
+            dp[0][i] = 1
+        
+        for i in range(len(obstacleGrid)):
+            if obstacleGrid[i][0] == 1:
+                break
+            dp[i][0] = 1
+        
+        for i in range(1, len(obstacleGrid)):
+            for j in range(1, len(obstacleGrid[0])):
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1] if obstacleGrid[i][j] != 1 else 0
+        
+        return dp[-1][-1]
+```
+
+
+
+### 1126 - 整数拆分<a id="p1126"></a>
+
+#### 问题
+
+给定一个正整数 `n` ，将其拆分为 `k` 个 **正整数** 的和（ `k >= 2` ），并使这些整数的乘积最大化。
+
+返回 *你可以获得的最大乘积* 。
+
+ 
+
+**示例 1:**
+
+```
+输入: n = 2
+输出: 1
+解释: 2 = 1 + 1, 1 × 1 = 1。
+```
+
+**示例 2:**
+
+```
+输入: n = 10
+输出: 36
+解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36。
+```
+
+ 
+
+#### 解法
+
+经过观察发现，当分解出的因数为3时，可以得到最大乘积，所以对应处理即可。(经过数学验证)
+
+```python
+class Solution:
+    def integerBreak(self, n: int) -> int:
+        # 分为3则结果乘积最大
+        if n < 4:
+            return n - 1
+        if n % 3 == 1:
+            result = 4
+            n -= 4
+        elif n % 3 == 2:
+            result = 2
+            n -= 2
+        else:
+            result = 1
+        while n > 0:
+                result *= 3
+                n -= 3
+        return result
+```
+
+动态规划：dp数组存储每个下标的最大乘积，而对于每次选择最大乘积时，只需要再套一层循环即可。内部包含了两个整数相乘和因数和dp数组相乘。
+
+```python
+class Solution:
+    def integerBreak(self, n: int) -> int:
+        dp = [0] * (n + 1)
+        dp[2] = 1
+
+        for i in range(2, n + 1):
+            for j in range(1, i // 2 + 1):
+                dp[i] = max(dp[i], (i - j) * j, dp[i - j] * j)
+
+        return dp[-1]
+```
+
+
+
+### 1127 - 不同的二叉搜索树<a id="p1127"></a>
+
+#### 问题
+
+给你一个整数 `n` ，求恰由 `n` 个节点组成且节点值从 `1` 到 `n` 互不相同的 **二叉搜索树** 有多少种？返回满足题意的二叉搜索树的种数。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg)
+
+```
+输入：n = 3
+输出：5
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：1
+```
+
+ 
+
+#### 解法
+
+根据树的形状进行判断，则dp公式可推导。
+
+```python
+class Solution:
+    def numTrees(self, n: int) -> int:
+        dp = [0] * (n + 1)
+        if n < 3:
+            return n
+        dp[0] = 1
+        dp[1] = 1
+        dp[2] = 2
+        # 假设节点值
+        for i in range(3, n + 1):
+            for j in range(1, i + 1):
+                dp[i] += dp[j - 1] * dp[i - j]
+        return dp[-1]
+```
+
+这个速度较快，原因可能在于：直接操作列表会拖慢速度，不如直接操作一次的快。
+
+```python
+class Solution:
+    def numTrees(self, n: int) -> int:
+        dp = [-1 for i in range(n+1)]
+        dp[0] = 1
+        dp[1] = 1
+
+        for r in range(2, n+1):
+            res = 0
+            for i in range(r):
+                left = dp[i]
+                right = dp[r-1-i]
+                res += left * right
+
+            dp[r] = res
+
+        return dp[n]
+```
+
