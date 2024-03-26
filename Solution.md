@@ -10285,3 +10285,84 @@ class Solution:
         return total_sum - dp[target] - dp[target]
 ```
 
+
+
+### 1130 - 目标和<a id="p1130"></a>
+
+#### 问题
+
+给你一个非负整数数组 `nums` 和一个整数 `target` 。
+
+向数组中的每个整数前添加 `'+'` 或 `'-'` ，然后串联起所有整数，可以构造一个 **表达式** ：
+
+- 例如，`nums = [2, 1]` ，可以在 `2` 之前添加 `'+'` ，在 `1` 之前添加 `'-'` ，然后串联起来得到表达式 `"+2-1"` 。
+
+返回可以通过上述方法构造的、运算结果等于 `target` 的不同 **表达式** 的数目。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,1,1,1,1], target = 3
+输出：5
+解释：一共有 5 种方法让最终目标和为 3 。
+-1 + 1 + 1 + 1 + 1 = 3
++1 - 1 + 1 + 1 + 1 = 3
++1 + 1 - 1 + 1 + 1 = 3
++1 + 1 + 1 - 1 + 1 = 3
++1 + 1 + 1 + 1 - 1 = 3
+```
+
+**示例 2：**
+
+```
+输入：nums = [1], target = 1
+输出：1
+```
+
+
+
+#### 解法
+
+回溯，已验证超时。
+
+```python
+class Solution:
+    def breaktrack(self, result, temp, Index, nums, target):
+        if Index == len(nums) and temp == target:
+            result.append(result[-1] + 1)
+        elif Index < len(nums):
+            self.breaktrack(result, temp + nums[Index], Index + 1, nums, target)
+            self.breaktrack(result, temp - nums[Index], Index + 1, nums, target)
+        else:
+            return
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        # 尝试回溯
+        result = [0]
+        self.breaktrack(result, 0, 0, nums, target)
+        return result[-1]
+```
+
+动态规划，数组dp内部存储的是当背包容量为下标i时，有几种方法填满背包。
+
+```python
+class Solution:
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        # 根据数学原理推算，实际上所求是：部分数字为加法，部分数字为减法
+        # 而且双方和为sum，那么是否存在这么一个加法使得所求target存在呢？
+        # 这个所求的数字不能是浮点数，因为nums数组中全为整数，所以不可能存在
+        if (target + sum(nums)) % 2:
+            return 0
+        sum_of_nums = sum(map(abs, nums))
+        if sum_of_nums < abs(target):
+            return 0
+        target_sum = (target + sum_of_nums) // 2
+        dp = [0] * (target_sum + 1)
+        dp[0] = 1
+        for num in nums:
+            for j in range(target_sum, num - 1, -1):
+                dp[j] += dp[j - num]
+        return dp[target_sum]
+```
+
