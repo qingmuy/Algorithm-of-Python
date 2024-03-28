@@ -320,6 +320,12 @@ LeetCode：100x
 
 [1134 - 零钱兑换](#p1134)
 
+[1135 - 单词拆分](#p1135)
+
+[1136 - 打家劫舍](#p1136)
+
+[1137 - 打家劫舍 II](#p1137)
+
 
 
 #### 递归
@@ -10701,5 +10707,205 @@ class Solution:
                     dp[i] = min(dp[i], dp[i - coin] + 1)
         
         return dp[-1] if dp[-1] != float('inf') else -1
+```
+
+
+
+### 1135 - 单词拆分<a id="p1135"></a>
+
+#### 问题
+
+给你一个字符串 `s` 和一个字符串列表 `wordDict` 作为字典。如果可以利用字典中出现的一个或多个单词拼接出 `s` 则返回 `true`。
+
+**注意：**不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用。
+
+ 
+
+**示例 1：**
+
+```
+输入: s = "leetcode", wordDict = ["leet", "code"]
+输出: true
+解释: 返回 true 因为 "leetcode" 可以由 "leet" 和 "code" 拼接成。
+```
+
+**示例 2：**
+
+```
+输入: s = "applepenapple", wordDict = ["apple", "pen"]
+输出: true
+解释: 返回 true 因为 "applepenapple" 可以由 "apple" "pen" "apple" 拼接成。
+     注意，你可以重复使用字典中的单词。
+```
+
+**示例 3：**
+
+```
+输入: s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]
+输出: false
+```
+
+ 
+
+#### 解法
+
+回溯算法，已经超时，即便通过辅助列表优化也超时(某个索引后无法拆分)
+
+```python
+class Solution:
+    def breaktrack(self, wordset, startIndex, s):
+        # 传递来的索引已经越界，说明拆分完毕
+        if startIndex >= len(s):
+            return True
+
+        # 拆分
+        for i in range(startIndex, len(s)):
+            word = s[startIndex:i + 1]
+            # 如果能完全拆分
+            if word in wordset and self.breaktrack(wordset, i + 1, s):
+                return True
+
+        # 无法拆分
+        return False
+
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        # 回溯，将list转为Set提高查找效率
+        wordset = set(wordDict)
+        return self.breaktrack(wordset, 0, s)
+```
+
+动态规划写法：dp数组表示自当前索引以前的字符串可以拆分成单词，如果为True说明自此以前的均可拆分。
+
+至于像s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]这类用例是如何判断的：实际上冲突位于d，因为sand和dog冲突，其实dp[i]也表达了索引为i的首字母是否可用，如果选择了sand，那么d就不可以再使用了，所以会返回False。
+
+```python
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        # dp数组用来表述当前索引以前的字符串是否可以分割成单词
+        wordset = set(wordDict)
+        dp = [False] * (len(s) + 1)
+        dp[0] = True
+
+        for i in range(1, len(s) + 1):
+            for j in range(i):
+                if s[j:i] in wordset and dp[j]:
+                    dp[i] = True
+                    break
+        return dp[len(s)]
+```
+
+
+
+### 1136 - 打家劫舍<a id="p1136"></a>
+
+#### 问题
+
+你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，**如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警**。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 **不触动警报装置的情况下** ，一夜之内能够偷窃到的最高金额。
+
+ 
+
+**示例 1：**
+
+```
+输入：[1,2,3,1]
+输出：4
+解释：偷窃 1 号房屋 (金额 = 1) ，然后偷窃 3 号房屋 (金额 = 3)。
+     偷窃到的最高金额 = 1 + 3 = 4 。
+```
+
+**示例 2：**
+
+```
+输入：[2,7,9,3,1]
+输出：12
+解释：偷窃 1 号房屋 (金额 = 2), 偷窃 3 号房屋 (金额 = 9)，接着偷窃 5 号房屋 (金额 = 1)。
+     偷窃到的最高金额 = 2 + 9 + 1 = 12 。
+```
+
+ 
+
+#### 解法
+
+实际上本题想法十分简单，就是对于dp[i]而言，其只有两个想法，要么偷要么不偷，如果偷的话：就只能考虑dp[i - 2]，不能考虑dp[i - 1]；如果不偷，因为它本质之上是不会偷i的，所以它的最大值就是dp[i - 1]。
+
+```python
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        if len(nums) < 2:
+            return nums[0]
+        # dp表示当前索引下的最高金额
+        dp = [0] * len(nums)
+        dp[0], dp[1] = nums[0], max(nums[0], nums[1])
+        # 递推公式为：dp[i] = max(dp[i - 2] + nums[i], dp[i - 1])
+        for i in range(2, len(nums)):
+            dp[i] = max(dp[i - 2] + nums[i], dp[i - 1])
+        return dp[-1]
+```
+
+
+
+### 1137 - 打家劫舍 II<a id="p1137"></a>
+
+#### 问题
+
+你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都 **围成一圈** ，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，**如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警** 。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 **在不触动警报装置的情况下** ，今晚能够偷窃到的最高金额。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [2,3,2]
+输出：3
+解释：你不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,2,3,1]
+输出：4
+解释：你可以先偷窃 1 号房屋（金额 = 1），然后偷窃 3 号房屋（金额 = 3）。
+     偷窃到的最高金额 = 1 + 3 = 4 。
+```
+
+**示例 3：**
+
+```
+输入：nums = [1,2,3]
+输出：3
+```
+
+ 
+
+#### 解法
+
+该问题是将初始问题升级为环，实际上转化思想就是偷首还是偷尾的问题。
+
+```python
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        if len(nums)==1:
+            return nums[0]
+        if len(nums)==2 or len(nums)==3:
+            return max(nums)
+
+        dp = [0] * len(nums)
+        dp[0], dp[1] = nums[0], max(nums[0], nums[1])
+
+        for i in range(2, len(nums) - 1):
+            dp[i] = max(dp[i - 2] + nums[i], dp[i - 1])
+        val1 = dp[-2]
+
+        dp[1], dp[2] = nums[1], max(nums[1], nums[2])
+        for i in range(3, len(nums)):
+            dp[i] = max(dp[i - 2] + nums[i], dp[i - 1])
+        val2 = dp[-1]
+
+        return max(val1, val2)
 ```
 
