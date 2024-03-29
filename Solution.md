@@ -10909,3 +10909,121 @@ class Solution:
         return max(val1, val2)
 ```
 
+
+
+### 1138 - 打家劫舍 III<a id="p1138"></a>
+
+#### 问题
+
+小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 `root` 。
+
+除了 `root` 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 **两个直接相连的房子在同一天晚上被打劫** ，房屋将自动报警。
+
+给定二叉树的 `root` 。返回 ***在不触动警报的情况下** ，小偷能够盗取的最高金额* 。
+
+ 
+
+**示例 1:**
+
+![img](./assets/rob1-tree.jpg)
+
+```
+输入: root = [3,2,3,null,3,null,1]
+输出: 7 
+解释: 小偷一晚能够盗取的最高金额 3 + 3 + 1 = 7
+```
+
+**示例 2:**
+
+![img](./assets/rob2-tree.jpg)
+
+```
+输入: root = [3,4,5,1,3,null,1]
+输出: 9
+解释: 小偷一晚能够盗取的最高金额 4 + 5 = 9
+```
+
+ 
+
+#### 解法
+
+直接递归计算，每次选择是否偷当前节点然后选取最大值。
+
+已验证超时
+
+```python
+class Solution:
+    def rob(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        if not root.left and not root.right:
+            return root.val
+            
+        # 偷当前节点情况下的值
+        val1 = root.val
+        # 如果有孩子节点，就偷孩子节点的孩子节点
+        if root.left:
+            val1 += self.rob(root.left.left) + self.rob(root.left.right)
+        if root.right:
+            val1 += self.rob(root.right.left) + self.rob(root.right.right)
+        
+        # 不偷当前节点情况下的值
+        val2 = self.rob(root.left) + self.rob(root.right)
+        return max(val1, val2)
+```
+
+对以上算法进行优化：进行记忆化搜索，将已经计算过的节点加入字典即可。
+
+```python
+class Solution:
+    memory = {}
+    def rob(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        if not root.left and not root.right:
+            return root.val
+
+        # 记忆化搜索优化：如果当前节点已经被计算过，就直接返回值
+        if self.memory.get(root):
+            return self.memory[root]
+
+        # 偷当前节点情况下的值
+        val1 = root.val
+        # 如果有孩子节点，就偷孩子节点的孩子节点
+        if root.left:
+            val1 += self.rob(root.left.left) + self.rob(root.left.right)
+        if root.right:
+            val1 += self.rob(root.right.left) + self.rob(root.right.right)
+        
+        # 不偷当前节点情况下的值
+        val2 = self.rob(root.left) + self.rob(root.right)
+
+        # 将当前节点计算得到的值加入记忆字典
+        self.memory[root] = max(val1, val2)
+        return max(val1, val2)
+```
+
+动态规划：利用长度为2的dp数组：dp[0]代表了不偷当前节点所获得的最大值，dp[1]代表偷当前节点获取到的最大值，配合递归即可求解。
+
+```python
+class Solution:
+    def traversal(self, root):
+        if not root:
+            return [0, 0]
+
+        left = self.traversal(root.left)
+        right = self.traversal(root.right)
+
+        # 不偷
+        val1 = max(left) + max(right)
+
+        # 偷
+        val2 = root.val + left[0] + right[0]
+
+        return [val1, val2]
+    def rob(self, root: Optional[TreeNode]) -> int:
+        # dp数组代表是否偷当前节点，0代表不偷当前节点得到的最大值，1代表偷
+        dp = self.traversal(root)
+        return max(dp)
+```
+
