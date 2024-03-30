@@ -252,6 +252,8 @@ LeetCode：100x
 
 [1106 - 摆动序列](#p1106)
 
+[1028 - 买卖股票的最佳时机](#p1128)
+
 [1108 - 买卖股票的最佳时机 II](#p1108)
 
 [1110 - 跳跃游戏 II](#p)
@@ -288,7 +290,7 @@ LeetCode：100x
 
 [1027 - 杨辉三角 II](#p1027)
 
-[1028 - 买卖股票的最佳时机](#1028)
+[1028 - 买卖股票的最佳时机](#p1028)
 
 [1122 - 斐波那契数列](#p1122)
 
@@ -325,6 +327,14 @@ LeetCode：100x
 [1136 - 打家劫舍](#p1136)
 
 [1137 - 打家劫舍 II](#p1137)
+
+[1138 - 打家劫舍 III](#p1138)
+
+[1139 - 买卖股票的最佳时机 III](#p1139)
+
+[1140 - 买卖股票的最佳时机 IV](#p1140)
+
+[1141 - 买卖股票的最佳时机含冷冻期](#p1141)
 
 
 
@@ -2402,9 +2412,15 @@ class Solution:
 
 其中，先获得最低价格后再计算最大差值，可以保证永远不会减出负数，避免了高买低出
 
-方法二：方法二精髓在于相较于方法一减小了计算量，其核心思想是，假设第一天为最低价格，向后遍历，遇到更低的价格就将更新最低价格，遇到不是最低的价格就直接使用今日价格减最低价格获得答案，答案随着遍历更新。
+方法二：贪心算法
+
+​		精髓在于相较于方法一减小了计算量，其核心思想是，假设第一天为最低价格，向后遍历，遇到更低的价格就将更新最低价格，遇到不是最低的价格就直接使用今日价格减最低价格获得答案，答案随着遍历更新。
 
 至于其减少的计算量就是：方法一在最低价格更新后还会相减一次，结果必为0，没有意义。
+
+方法三：动态规划算法
+
+​		对于dp数组，其内部存储的是当天是否持有股票的最大收益。以此推算即可。
 
 ```python
 # class Solution:
@@ -2430,18 +2446,31 @@ class Solution:
         return maxprofit
 
 # 方法二
+# 贪心
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         if not prices:
             return 0
         ans=0
-        curmin=prices[0]
-        for i,v in enumerate(prices):
+        curmin = prices[0]
+        for v in prices:
             if v<curmin:
                 curmin=v
             else:
                 ans=max(ans, v-curmin)
         return ans
+    
+# 动态规划算法
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # dp数组代表当天是否持有股票，0代表不持有股票，1代表持有股票
+        dp = [[0] * 2 for _ in range(len(prices))]
+        dp[0] = [0, -prices[0]]
+        for i in range(1, len(prices)):
+            # 对于当天不持有股票有两种状态：1、像昨天一样不持有股票手中的现金 2、今日卖出
+            # 对于当天持有股票有两种状态：1、和昨天一样 2、今日买入
+            dp[i] = [max(dp[i - 1][0], prices[i] + dp[i - 1][1]), max(dp[i - 1][1], -prices[i])]
+        return max(dp[-1])
 ```
 
 
@@ -8734,6 +8763,21 @@ class Solution:
         return result
 ```
 
+动态规划：与上一次股票交易不同的是，这次交易可以多次买入卖出但是一日内最多持有一只股票；对于动态规划的推导式而言，不同的是：如果选择当日买入，那么今日持有的金额应该为昨日不持有股票时（昨日若持有股票则今日无法买入，否则会造成当日持有两只股票）剩余的金额减去今日的股票价格。
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        dp = [[0] * 2 for _ in range(len(prices))]
+        dp[0] = [0, -prices[0]]
+        for i in range(1, len(prices)):
+            # 与上一题不同的是：在当天持有股票的情况下：如果选择买入当天股票，那么拥有的金额为以前的现金减去今日股票价格
+            dp[i] = [max(dp[i - 1][0], prices[i] + dp[i - 1][1]), max(dp[i - 1][1], dp[i - 1][0] - prices[i])]
+        return max(dp[-1])
+```
+
+
+
 
 
 ### 1109 - 跳跃游戏<a id="p1109"></a>
@@ -11025,5 +11069,264 @@ class Solution:
         # dp数组代表是否偷当前节点，0代表不偷当前节点得到的最大值，1代表偷
         dp = self.traversal(root)
         return max(dp)
+```
+
+
+
+### 1139 - 买卖股票的最佳时机 III<a id="p1139"></a>
+
+#### 问题
+
+给定一个数组，它的第 `i` 个元素是一支给定的股票在第 `i` 天的价格。
+
+设计一个算法来计算你所能获取的最大利润。你最多可以完成 **两笔** 交易。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1:**
+
+```
+输入：prices = [3,3,5,0,0,3,1,4]
+输出：6
+解释：在第 4 天（股票价格 = 0）的时候买入，在第 6 天（股票价格 = 3）的时候卖出，这笔交易所能获得利润 = 3-0 = 3 。
+     随后，在第 7 天（股票价格 = 1）的时候买入，在第 8 天 （股票价格 = 4）的时候卖出，这笔交易所能获得利润 = 4-1 = 3 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。   
+     注意你不能在第 1 天和第 2 天接连购买股票，之后再将它们卖出。   
+     因为这样属于同时参与了多笔交易，你必须在再次购买前出售掉之前的股票。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1] 
+输出：0 
+解释：在这个情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+**示例 4：**
+
+```
+输入：prices = [1]
+输出：0
+```
+
+ 
+
+#### 解法
+
+裁缝版：先计算第一次获取的最大利润，再将买入-卖出的区间段删去，计算第二次获取的最大利润即可。该方法问题在于无法计算总的最大利润：因为每次计算都是最大利润，这导致可以在第一次计算的过程中虽然能取得了最大值，但是整体并没有取到最大值，如下测试用例：
+
+> [6,1,3,2,4,7]
+>
+> 预期结果：7
+>
+> 实际结果：6
+
+```python
+# 裁缝版：无法通过，但是测试用例通过80%
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 先计算第一次的收入
+        min_price = float('inf')
+        val1 = 0
+        startindex, endindex = 0, 0
+        for i in range(len(prices)):
+            if prices[i] <= min_price:
+                min_price = prices[i]
+            if prices[i] - min_price >= val1:
+                val1 = prices[i] - min_price
+                endindex = i
+
+        for i in range(endindex, -1, -1):
+            if prices[endindex] - prices[i] == val1:
+                startindex = i
+
+        if startindex >= endindex:
+            return val1
+        # 将原本的区间截去
+        new_prices = prices[:startindex] + prices[endindex + 1:]
+        if not new_prices:
+            return val1
+
+        min_price = float('inf')
+        val2 = 0
+        for i in range(len(new_prices)):
+            min_price = min(new_prices[i], min_price)
+            val2 = max(new_prices[i] - min_price, val2)
+        return val1 + val2
+
+```
+
+动态规划：
+
+​		该方法设计的dp数组的含义为：对于dp\[i][j]：表示在第i天处于j状态下持有的最多现金；有如下四种状态：1.第一次持有股票 2.第一次不持有股票 3.第二次持有股票 4.第二次不持有股票。
+
+​		这其中需要注意的地方：对于计算第一次持有股票时，其起始利润应从dp\[i - 1][0]计算而不是dp\[i - 1][2]。
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 对于dp[i][j]：表示在第i天处于j状态下持有的最多现金
+        # 0:无操作 1:第一次持有股票 2：第一次不持有股票 3：第二次持有股票 4：第二次不持有股票
+        dp = [[0] * 5 for _ in range(len(prices))]
+        dp[0] = [0, -prices[0], 0, -prices[0], 0]
+        for i in range(1, len(prices)):
+            # 第一次持有股票：昨天持有或是今天购入
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices[i])
+            # 第一次不持有股票：没买或者今天卖出
+            dp[i][2] = max(dp[i - 1][2], dp[i - 1][1] + prices[i])
+            # 第二次持有股票：
+            dp[i][3] = max(dp[i - 1][3], dp[i - 1][2] - prices[i])
+            # 第二次不持有股票：一直没买或者今日卖出
+            dp[i][4] = max(dp[i - 1][4], dp[i - 1][3] + prices[i])
+        return dp[-1][-1]
+```
+
+
+
+### 1140 - 买卖股票的最佳时机 IV<a id="p1140"></a>
+
+#### 问题
+
+给你一个整数数组 `prices` 和一个整数 `k` ，其中 `prices[i]` 是某支给定的股票在第 `i` 天的价格。
+
+设计一个算法来计算你所能获取的最大利润。你最多可以完成 `k` 笔交易。也就是说，你最多可以买 `k` 次，卖 `k` 次。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1：**
+
+```
+输入：k = 2, prices = [2,4,1]
+输出：2
+解释：在第 1 天 (股票价格 = 2) 的时候买入，在第 2 天 (股票价格 = 4) 的时候卖出，这笔交易所能获得利润 = 4-2 = 2 。
+```
+
+**示例 2：**
+
+```
+输入：k = 2, prices = [3,2,6,5,0,3]
+输出：7
+解释：在第 2 天 (股票价格 = 2) 的时候买入，在第 3 天 (股票价格 = 6) 的时候卖出, 这笔交易所能获得利润 = 6-2 = 4 。
+     随后，在第 5 天 (股票价格 = 0) 的时候买入，在第 6 天 (股票价格 = 3) 的时候卖出, 这笔交易所能获得利润 = 3-0 = 3 。
+```
+
+ 
+
+#### 解法
+
+动态规划：对于上题而言，可以发现规律：对于第i次买入或者卖出的价格取决于第i- 1次买入或卖出的价格，所以只要对次数进行控制即可。
+
+```python
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        dp = [[0] * ((k * 2) + 1) for _ in range(len(prices))]
+        for i in range(1, (k * 2) + 1, 2):
+            dp[0][i] = -prices[0]
+
+        for i in range(1, len(prices)):
+            for j in range(1, (k * 2) + 1, 2):
+                # 第i次持有
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - 1] - prices[i])
+                # 第i次不持有
+                dp[i][j + 1] = max(dp[i - 1][j + 1], dp[i - 1][j] + prices[i])
+
+        return dp[-1][-1]
+```
+
+
+
+### 1141 - 买卖股票的最佳时机含冷冻期<a id="p1141"></a>
+
+#### 问题
+
+给定一个整数数组`prices`，其中第 `prices[i]` 表示第 `*i*` 天的股票价格 。
+
+设计一个算法计算出最大利润。在满足以下约束条件下，你可以尽可能地完成更多的交易（多次买卖一支股票）:
+
+- 卖出股票后，你无法在第二天买入股票 (即冷冻期为 1 天)。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1:**
+
+```
+输入: prices = [1,2,3,0,2]
+输出: 3 
+解释: 对应的交易状态为: [买入, 卖出, 冷冻期, 买入, 卖出]
+```
+
+**示例 2:**
+
+```
+输入: prices = [1]
+输出: 0
+```
+
+ 
+
+#### 解法
+
+动态规划：细分为四个状态，分别为：
+
+> 状态一：持有股票状态（今天买入股票，或者是之前就买入了股票然后没有操作，一直持有）
+>
+> 不持有股票状态，这里就有两种卖出股票状态
+>
+> 状态二：保持卖出股票的状态（两天前就卖出了股票，度过一天冷冻期。或者是前一天就是卖出股票状态，一直没操作）
+>
+> 状态三：今天卖出股票
+>
+> 状态四：今天为冷冻期状态，但冷冻期状态不可持续，只有一天！
+
+实际上不太好理解。
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 四个状态：0：持有 1：未持有且是因为昨天为冷冻期 2：未持有，今日卖出 3：冷冻期
+        dp = [[0] * 4 for _ in range(len(prices))]
+
+        dp[0] = [-prices[0], 0, 0, 0]
+
+        for i in range(1, len(prices)):
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][3] - prices[i], dp[i - 1][1] - prices[i])
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][3])
+            dp[i][2] = dp[i - 1][0] + prices[i]
+            dp[i][3] = dp[i - 1][2]
+        
+        return max(dp[-1])
+```
+
+分为三个状态，将状态二和状态四合并，反而好理解一些。
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 三个状态：0：持有 1：不持有且处于冷冻期 2：不持有且不处于冷冻期
+        dp = [[0] * 3 for _ in range(len(prices))]
+
+        dp[0] = [-prices[0], 0, 0]
+
+        for i in range(1, len(prices)):
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][2] - prices[i])
+            dp[i][1] = dp[i - 1][0] + prices[i]
+            # 不买或者刚从冷冻期脱离
+            dp[i][2] = max(dp[i - 1][1], dp[i - 1][2])
+        
+        return max(dp[-1])
 ```
 
