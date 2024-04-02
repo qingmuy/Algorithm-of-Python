@@ -11753,3 +11753,96 @@ class Solution:
         return res
 ```
 
+
+
+### 1147 - 所有可能的真二叉树<a id="p1147"></a>
+
+#### 问题
+
+给你一个整数 `n` ，请你找出所有可能含 `n` 个节点的 **真二叉树** ，并以列表形式返回。答案中每棵树的每个节点都必须符合 `Node.val == 0` 。
+
+答案的每个元素都是一棵真二叉树的根节点。你可以按 **任意顺序** 返回最终的真二叉树列表**。**
+
+**真二叉树** 是一类二叉树，树中每个节点恰好有 `0` 或 `2` 个子节点。
+
+ 
+
+**示例 1：**
+
+![img](./assets/fivetrees.png)
+
+```
+输入：n = 7
+输出：[[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]
+```
+
+**示例 2：**
+
+```
+输入：n = 3
+输出：[[0,0,0]]
+```
+
+ 
+
+#### 解法
+
+递归构建满二叉树，每次控制左右结点的数量。
+
+难点在于理解res数组的意义：随着递归深入不容易理解。
+
+```python
+class Solution:
+    # 子问题：构造一棵满二叉树
+    def allPossibleFBT(self, N: int) -> List[TreeNode]:
+        res = []
+        if N == 1:
+            return [TreeNode(0)]
+        # 结点个数必须是奇数
+        if N % 2 == 0:
+            return res
+        
+        # 左子树分配一个节点
+        left_num = 1
+        # 右子树可以分配到 N - 1 - 1 = N - 2 个节点
+        right_num = N - 2
+        
+        while right_num > 0:
+            # 递归构造左子树
+            left_tree = self.allPossibleFBT(left_num)
+            # 递归构造右子树
+            right_tree = self.allPossibleFBT(right_num)
+            # 具体构造过程
+            for i in range(len(left_tree)):
+                for j in range(len(right_tree)):
+                    root = TreeNode(0)
+                    root.left = left_tree[i]
+                    root.right = right_tree[j]
+                    res.append(root)
+            left_num += 2
+            right_num -= 2
+        
+        return res
+```
+
+动态规划，使用dp数组存储当叶子结点个数为i时的结点列表。
+
+核心代码在于入动态分配左右节点数量，并创建树。
+
+```python
+class Solution:
+    def allPossibleFBT(self, N: int) -> List[TreeNode]:
+        # 最多只会构建二十个结点，可以使用动态规划返回
+        dp = [[] for _ in range(11)]
+        dp[1] = [TreeNode()]
+        if not N % 2:
+            return []
+        for i in range(2, 11):
+            dp[i] = [TreeNode(0, left, right)
+                    for j in range(1, i)
+                    for left in dp[j]
+                    for right in dp[i - j]]
+        
+        return dp[(N + 1) // 2]
+```
+
