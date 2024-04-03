@@ -166,6 +166,8 @@ LeetCode：100x
 
 [1101 - 二叉树的层序遍历 II](#p1101)
 
+[1147 - 所有可能的真二叉树](#p1147)
+
 
 
 #### 哈希表
@@ -2803,7 +2805,7 @@ class Solution:
 class Solution:
     def preorderTraversal(self, root: TreeNode) -> List[int]:
         result = []
-        st= []
+        st = []
         if root:
             st.append(root)
         while st:
@@ -11844,5 +11846,141 @@ class Solution:
                     for right in dp[i - j]]
         
         return dp[(N + 1) // 2]
+```
+
+
+
+### 1148 - 找出克隆二叉树中的相同节点<a id="p1148"></a>
+
+#### 问题
+
+给你两棵二叉树，原始树 `original` 和克隆树 `cloned`，以及一个位于原始树 `original` 中的目标节点 `target`。
+
+其中，克隆树 `cloned` 是原始树 `original` 的一个 **副本** 。
+
+请找出在树 `cloned` 中，与 `target` **相同** 的节点，并返回对该节点的引用（在 C/C++ 等有指针的语言中返回 节点指针，其他语言返回节点本身）。
+
+ 
+
+**注意：**你 **不能** 对两棵二叉树，以及 `target` 节点进行更改。**只能** 返回对克隆树 `cloned` 中已有的节点的引用。
+
+
+
+**示例 1:**
+
+![img](./assets/e1.png)
+
+```
+输入: tree = [7,4,3,null,null,6,19], target = 3
+输出: 3
+解释: 上图画出了树 original 和 cloned。target 节点在树 original 中，用绿色标记。答案是树 cloned 中的黄颜色的节点（其他示例类似）。
+```
+
+**示例 2:**
+
+![img](./assets/e2.png)
+
+```
+输入: tree = [7], target =  7
+输出: 7
+```
+
+**示例 3:**
+
+![img](./assets/e3.png)
+
+```
+输入: tree = [8,null,6,null,5,null,4,null,3,null,2,null,1], target = 4
+输出: 4
+```
+
+ 
+
+#### 解法
+
+迭代遍历节点，值相同即返回。
+
+```python
+class Solution:
+    def getTargetCopy(self, original: TreeNode, cloned: TreeNode, target: TreeNode) -> TreeNode:
+        # 遍历二叉树，遇到相同节点返回即可。
+        from collections import deque
+        deque = collections.deque([cloned])
+        while deque:
+            node = deque.pop()
+
+            if node.val == target.val:
+                return node
+
+            if node.left:
+                deque.append(node.left)
+            if node.right:
+                deque.append(node.right)
+```
+
+
+
+### 1149 - 统计元音字母序列的数目<a id="p1149"></a>
+
+#### 问题
+
+给你一个整数 `n`，请你帮忙统计一下我们可以按下述规则形成多少个长度为 `n` 的字符串：
+
+- 字符串中的每个字符都应当是小写元音字母（`'a'`, `'e'`, `'i'`, `'o'`, `'u'`）
+- 每个元音 `'a'` 后面都只能跟着 `'e'`
+- 每个元音 `'e'` 后面只能跟着 `'a'` 或者是 `'i'`
+- 每个元音 `'i'` 后面 **不能** 再跟着另一个 `'i'`
+- 每个元音 `'o'` 后面只能跟着 `'i'` 或者是 `'u'`
+- 每个元音 `'u'` 后面只能跟着 `'a'`
+
+由于答案可能会很大，所以请你返回 模 `10^9 + 7` 之后的结果。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 1
+输出：5
+解释：所有可能的字符串分别是："a", "e", "i" , "o" 和 "u"。
+```
+
+**示例 2：**
+
+```
+输入：n = 2
+输出：10
+解释：所有可能的字符串分别是："ae", "ea", "ei", "ia", "ie", "io", "iu", "oi", "ou" 和 "ua"。
+```
+
+**示例 3：**
+
+```
+输入：n = 5
+输出：68
+```
+
+ 
+
+#### 解法
+
+使用动态规划，统计每个元音字母结尾的可能性即可。
+
+```python
+class Solution:
+    def countVowelPermutation(self, n: int) -> int:
+        # 寻找最多的可能，使用动态规划
+        # dp 代表以某字母结尾的情况下，最多有多少构成可能
+        dp = [1, 1, 1, 1, 1]
+
+        for i in range(1, n):
+            last_dp = dp[:]
+            dp[0] = (last_dp[1] + last_dp[2] + last_dp[4])
+            dp[1] = (last_dp[0] + last_dp[2])
+            dp[2] = (last_dp[1] + last_dp[3])
+            dp[3] = last_dp[2]
+            dp[4] = (last_dp[2] + last_dp[3])
+
+        return sum(dp) % (10 ** 9 + 7)
 ```
 
