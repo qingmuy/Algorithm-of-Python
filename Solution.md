@@ -11984,3 +11984,345 @@ class Solution:
         return sum(dp) % (10 ** 9 + 7)
 ```
 
+
+
+### 1150 - 有向无环图中一个节点的所有祖先<a id="p1150"></a>
+
+#### 问题
+
+给你一个正整数 `n` ，它表示一个 **有向无环图** 中节点的数目，节点编号为 `0` 到 `n - 1` （包括两者）。
+
+给你一个二维整数数组 `edges` ，其中 `edges[i] = [fromi, toi]` 表示图中一条从 `fromi` 到 `toi` 的单向边。
+
+请你返回一个数组 `answer`，其中 `answer[i]`是第 `i` 个节点的所有 **祖先** ，这些祖先节点 **升序** 排序。
+
+如果 `u` 通过一系列边，能够到达 `v` ，那么我们称节点 `u` 是节点 `v` 的 **祖先** 节点。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2019/12/12/e1.png)
+
+```
+输入：n = 8, edgeList = [[0,3],[0,4],[1,3],[2,4],[2,7],[3,5],[3,6],[3,7],[4,6]]
+输出：[[],[],[],[0,1],[0,2],[0,1,3],[0,1,2,3,4],[0,1,2,3]]
+解释：
+上图为输入所对应的图。
+- 节点 0 ，1 和 2 没有任何祖先。
+- 节点 3 有 2 个祖先 0 和 1 。
+- 节点 4 有 2 个祖先 0 和 2 。
+- 节点 5 有 3 个祖先 0 ，1 和 3 。
+- 节点 6 有 5 个祖先 0 ，1 ，2 ，3 和 4 。
+- 节点 7 有 4 个祖先 0 ，1 ，2 和 3 。
+```
+
+**示例 2：**
+
+![img](./assets/e2-1712306442896-3.png)
+
+```
+输入：n = 5, edgeList = [[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+输出：[[],[0],[0,1],[0,1,2],[0,1,2,3]]
+解释：
+上图为输入所对应的图。
+- 节点 0 没有任何祖先。
+- 节点 1 有 1 个祖先 0 。
+- 节点 2 有 2 个祖先 0 和 1 。
+- 节点 3 有 3 个祖先 0 ，1 和 2 。
+- 节点 4 有 4 个祖先 0 ，1 ，2 和 3 。
+```
+
+
+
+#### 解法
+
+超时暴力解法：先将所有的节点加入到列表中，再统计节点的父节点的祖先。超时
+
+```python
+class Solution:
+    def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        result = [[] for _ in range(n)]
+        for edge in edges:
+            result[edge[1]].append(edge[0])
+        for i in range(n):
+            if result[i]:
+                for j in result[i]:
+                    result[i].extend(result[j])
+                result[i] = list(set(result[i]))
+                result[i].sort()
+        return result
+```
+
+优化暴力广度优先遍历：
+
+```python
+class Solution:
+    def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        def bfs(s: int):
+            q = deque([s])
+            vis = {s}
+            while q:
+                i = q.popleft()
+                for j in g[i]:
+                    if j not in vis:
+                        vis.add(j)
+                        q.append(j)
+                        ans[j].append(s)
+
+        g = defaultdict(list)
+        for u, v in edges:
+            g[u].append(v)
+        ans = [[] for _ in range(n)]
+        for i in range(n):
+            bfs(i)
+        return ans+
+```
+
+
+
+
+
+### 1151 - 节点与其祖先之间的最大差值<a id="p1151"></a>
+
+#### 问题
+
+给定二叉树的根节点 `root`，找出存在于 **不同** 节点 `A` 和 `B` 之间的最大值 `V`，其中 `V = |A.val - B.val|`，且 `A` 是 `B` 的祖先。
+
+（如果 A 的任何子节点之一为 B，或者 A 的任何子节点是 B 的祖先，那么我们认为 A 是 B 的祖先）
+
+ 
+
+**示例 1：**
+
+![img](./assets/tmp-tree-1712306555061-8.jpg)
+
+```
+输入：root = [8,3,10,1,6,null,14,null,null,4,7,13]
+输出：7
+解释： 
+我们有大量的节点与其祖先的差值，其中一些如下：
+|8 - 3| = 5
+|3 - 7| = 4
+|8 - 1| = 7
+|10 - 13| = 3
+在所有可能的差值中，最大值 7 由 |8 - 1| = 7 得出。
+```
+
+**示例 2：**
+
+![img](./assets/tmp-tree-1.jpg)
+
+```
+输入：root = [1,null,2,null,0,3]
+输出：3
+```
+
+ 
+
+#### 解法
+
+暴力回溯：
+
+直接传递所有父节点，计算
+
+```python
+class Solution:
+    def breaktrack(self, root, result, temp):
+        if temp:
+            result[0] = max(abs(root.val - max(temp)), result[0], abs(root.val - min(temp)))
+        # 传递祖先值
+        temp.append(root.val)
+
+        if root.left:
+            self.breaktrack(root.left, result, temp[:])
+        if root.right:
+            self.breaktrack(root.right, result, temp)
+
+
+    def maxAncestorDiff(self, root: Optional[TreeNode]) -> int:
+        # 寻找最大差值，绝对值
+        # 必须是同一棵树
+        # 递归寻找
+        result = [0]
+        self.breaktrack(root, result, [])
+        return result[0]
+```
+
+正确方法：传递最大值和最小值即可
+
+```python
+class Solution(object):
+    def maxAncestorDiff(self, root):
+        if not root: 
+            return 0
+        return self.helper(root, root.val, root.val)
+    
+    def helper(self, node, high, low):
+        if not node:
+            return high - low
+        high = max(high, node.val)
+        low = min(low, node.val)
+        return max(self.helper(node.left, high, low), self.helper(node.right,high,low))
+```
+
+
+
+### 1152 - 下降路径最小和 II<a id="p1152"></a>
+
+#### 问题
+
+给你一个 `n x n` 整数矩阵 `grid` ，请你返回 **非零偏移下降路径** 数字和的最小值。
+
+**非零偏移下降路径** 定义为：从 `grid` 数组中的每一行选择一个数字，且按顺序选出来的数字中，相邻数字不在原数组的同一列。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/08/10/falling-grid.jpg)
+
+```
+输入：grid = [[1,2,3],[4,5,6],[7,8,9]]
+输出：13
+解释：
+所有非零偏移下降路径包括：
+[1,5,9], [1,5,7], [1,6,7], [1,6,8],
+[2,4,8], [2,4,9], [2,6,7], [2,6,8],
+[3,4,8], [3,4,9], [3,5,7], [3,5,9]
+下降路径中数字和最小的是 [1,5,7] ，所以答案是 13 。
+```
+
+**示例 2：**
+
+```
+输入：grid = [[7]]
+输出：7
+```
+
+ 
+
+#### 解法
+
+回溯：超时6/16
+
+```python
+class Solution:
+    def breaktrack(self, grid, lastindex, temp, n, result):
+        # lastindex代表上层选择的索引，n代表当前的层数
+        if n == len(grid):
+            result[0] = min(result[0], sum(temp))
+            return
+        for i in range(len(grid)):
+            if i != lastindex:
+                self.breaktrack(grid, i, temp + [grid[n][i]], n + 1, result)
+    def minFallingPathSum(self, grid: List[List[int]]) -> int:
+        # 回溯
+        result = [float('inf')]
+        deepth = len(grid)
+        self.breaktrack(grid, -1, [], 0, result)
+        return result[0]
+```
+
+动态规划
+
+```python
+class Solution:
+    def minFallingPathSum(self, grid: List[List[int]]) -> int:
+        # 动态规划
+        # 索引代表到当前位置的最小叠加值
+        dp = [[float('inf')] * len(grid) for _ in range(len(grid))]
+        dp[0] = grid[0]
+        # 控制层数
+        for i in range(1, len(grid)):
+            # 控制行数
+            for j in range(len(grid)):
+                # 控制上层行数
+                for k in range(len(grid)):
+                    if k != j:
+                        dp[i][j] = min(dp[i][j], dp[i - 1][k] + grid[i][j])
+        return min(dp[-1])
+```
+
+
+
+### 1153 - 做菜顺序<a id="p1153"></a>
+
+#### 问题
+
+一个厨师收集了他 `n` 道菜的满意程度 `satisfaction` ，这个厨师做出每道菜的时间都是 1 单位时间。
+
+一道菜的 「 **like-time 系数** 」定义为烹饪这道菜结束的时间（包含之前每道菜所花费的时间）乘以这道菜的满意程度，也就是 `time[i]`*`satisfaction[i]` 。
+
+返回厨师在准备了一定数量的菜肴后可以获得的最大 **like-time 系数** 总和。
+
+你可以按 **任意** 顺序安排做菜的顺序，你也可以选择放弃做某些菜来获得更大的总和。
+
+ 
+
+**示例 1：**
+
+```
+输入：satisfaction = [-1,-8,0,5,-9]
+输出：14
+解释：去掉第二道和最后一道菜，最大的 like-time 系数和为 (-1*1 + 0*2 + 5*3 = 14) 。每道菜都需要花费 1 单位时间完成。
+```
+
+**示例 2：**
+
+```
+输入：satisfaction = [4,3,2]
+输出：20
+解释：可以按照任意顺序做菜 (2*1 + 3*2 + 4*3 = 20)
+```
+
+**示例 3：**
+
+```
+输入：satisfaction = [-1,-4,-5]
+输出：0
+解释：大家都不喜欢这些菜，所以不做任何菜就可以获得最大的 like-time 系数。
+```
+
+ 
+
+#### 解法
+
+暴力解法
+
+```python
+class Solution:
+    def maxSatisfaction(self, satisfaction: List[int]) -> int:
+        satisfaction.sort()
+        res = 0
+        # 从后往前做的最大值即可
+        # 决定每次做几道菜
+        for i in range(1, len(satisfaction) + 1):
+            temp = 0
+            # 控制做哪个菜
+            for j in range(len(satisfaction) - i, len(satisfaction)):
+                temp += (j - len(satisfaction) + i + 1) * satisfaction[j]
+            res = max(temp, res)
+        return res
+```
+
+动态规划：根据数学原理推算得出(推算过程：[1402. 做菜顺序 - 灵茶山艾府](https://leetcode.cn/problems/reducing-dishes/solutions/2492854/mei-ju-zuo-ji-dao-cai-tan-xin-pythonjava-k7w2/))
+
+> *f*(*k*)=*f*(*k*−1)+(*a*[0]+*a*[1]+⋯+*a*[*k*−1])
+
+所以可以一面加一面计算。
+
+```python
+class Solution:
+    def maxSatisfaction(self, satisfaction: List[int]) -> int:
+        satisfaction.sort(reverse=True)
+        ans, tmp = 0, 0
+        for i in satisfaction:
+            if tmp + i > 0:
+                tmp += i
+                ans += tmp
+            else:
+                break
+        return ans
+```
+
