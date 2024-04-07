@@ -12396,3 +12396,275 @@ class Solution:
         return res % MOD
 ```
 
+
+
+### 1155 - 分隔链表<a id="p1155"></a>
+
+#### 问题
+
+给你一个链表的头节点 `head` 和一个特定值 `x` ，请你对链表进行分隔，使得所有 **小于** `x` 的节点都出现在 **大于或等于** `x` 的节点之前。
+
+你应当 **保留** 两个分区中每个节点的初始相对位置。
+
+ 
+
+**示例 1：**
+
+![img](./assets/partition.jpg)
+
+```
+输入：head = [1,4,3,2,5,2], x = 3
+输出：[1,2,2,4,3,5]
+```
+
+**示例 2：**
+
+```
+输入：head = [2,1], x = 2
+输出：[1,2]
+```
+
+ 
+
+#### 解法
+
+直接在本链表上进行操作
+
+```python
+class Solution:
+    def partition(self, head: Optional[ListNode], x: int) -> Optional[ListNode]:
+        res = ListNode(0, head)
+        if not head or not head.next:
+            return res.next
+        l, r = res, head
+        # 截断节点，插入
+        # per.next = right
+        while r:
+            per = res
+            while per.next != r:
+                per = per.next
+            if x > r.val:
+                # 如果当前节点是头节点就忽略
+                if l.next == r:
+                    l = l.next
+                    r = r.next
+                    continue
+                ln = l.next
+                rn = r.next
+                l.next = r
+                r.next = ln
+                r = rn
+                l = l.next
+                per.next = rn
+            else:
+                r = r.next
+        return res.next
+```
+
+可以直接创建两个链表，一个用于储存小的节点，另一个用于存储其他节点，最后拼接即可。
+
+
+
+### 1156 - 无重复字符的最长子串<a id="p1156"></a>
+
+#### 问题
+
+给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长**
+
+**子串**
+
+ 的长度。
+
+
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+**示例 2:**
+
+```
+输入: s = "bbbbb"
+输出: 1
+解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
+```
+
+**示例 3:**
+
+```
+输入: s = "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+```
+
+
+
+#### 解法
+
+拼接子串求长度，可能由于对于字符串的操作较为耗费时间所以速较慢。
+
+```python
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        if not s:
+            return 0
+        string = [i for i in s]
+        # 滑动窗口
+        l, r = 0, 1
+        s = "" + string[0]
+        res = 1
+        while r < len(string):
+            while string[r] in s:
+                res = max(res, len(s))
+                l += 1
+                s = s[1:]
+            s = s + string[r]
+            r += 1
+        return max(res, len(s))
+```
+
+使用集合检验是否重复，配合双指针。
+
+```python
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        if not s:
+            return 0
+        l, r = 0, 0
+        res = 0
+        visited = set()
+        for i in s:
+            if i in visited:
+                while s[l] != i:
+                    visited.remove(s[l])
+                    l+=1
+                l+=1
+                r+=1
+            else:
+                visited.add(i)
+                r += 1
+                res = max(res, r - l)
+        return res
+```
+
+
+
+### 1157 - 寻找两个正序数组的中位数<a id="p1157"></a>
+
+#### 问题
+
+给定两个大小分别为 `m` 和 `n` 的正序（从小到大）数组 `nums1` 和 `nums2`。请你找出并返回这两个正序数组的 **中位数** 。
+
+算法的时间复杂度应该为 `O(log (m+n))` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,3], nums2 = [2]
+输出：2.00000
+解释：合并数组 = [1,2,3] ，中位数 2
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [1,2], nums2 = [3,4]
+输出：2.50000
+解释：合并数组 = [1,2,3,4] ，中位数 (2 + 3) / 2 = 2.5
+```
+
+ 
+
+#### 解法
+
+使用索引寻找中位数，对奇偶进行处理即可。
+
+```python
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        nums = nums1 + nums2
+        nums.sort()
+        return nums[(len(nums1) + len(nums2)) // 2] if (len(nums1) + len(nums2)) % 2 else (nums[(len(nums1) + len(nums2)) // 2 - 1] + nums[(len(nums1) + len(nums2)) // 2]) / 2
+```
+
+
+
+### 1158 - 最长回文子串<a id="p1158"></a>
+
+#### 问题
+
+给你一个字符串 `s`，找到 `s` 中最长的回文
+
+子串。
+
+如果字符串的反序与原始字符串相同，则该字符串称为回文字符串。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "babad"
+输出："bab"
+解释："aba" 同样是符合题意的答案。
+```
+
+**示例 2：**
+
+```
+输入：s = "cbbd"
+输出："bb"
+```
+
+ 
+
+#### 解法
+
+暴力解法
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        from collections import deque
+        # 动态规划
+        dp = [0] * (len(s) + 1)
+        dp[0] = ""
+        # 每次间隔的长度
+        for i in range(1, len(s) + 1):
+            for j in range(len(s) + 1 - i):
+                print(s[j:j + i])
+                if s[j:j + i] == s[j:j + i][::-1]:
+                    dp[i] = s[j:j + i]
+            if dp[i] == 0:
+                dp[i] = dp[i - 1]
+        return dp[-1]
+```
+
+每次根据长度控制索引
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        res = ''
+        for i in range(len(s)):
+            # 处理起始索引的精髓
+            start = max(i - len(res) - 1, 0)
+            temp = s[start: i+1]
+            if temp == temp[::-1]:
+                res = temp
+            else:
+                temp = temp[1:]
+                if temp == temp[::-1]:
+                    res = temp
+        return res
+```
+
