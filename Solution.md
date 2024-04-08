@@ -12668,3 +12668,182 @@ class Solution:
         return res
 ```
 
+
+
+### 1159 - Z字形变换<a id="p1159"></a>
+
+#### 问题
+
+将一个给定字符串 `s` 根据给定的行数 `numRows` ，以从上往下、从左到右进行 Z 字形排列。
+
+比如输入字符串为 `"PAYPALISHIRING"` 行数为 `3` 时，排列如下：
+
+```
+P   A   H   N
+A P L S I I G
+Y   I   R
+```
+
+之后，你的输出需要从左往右逐行读取，产生出一个新的字符串，比如：`"PAHNAPLSIIGYIR"`。
+
+请你实现这个将字符串进行指定行数变换的函数：
+
+```
+string convert(string s, int numRows);
+```
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "PAYPALISHIRING", numRows = 3
+输出："PAHNAPLSIIGYIR"
+```
+
+**示例 2：**
+
+```
+输入：s = "PAYPALISHIRING", numRows = 4
+输出："PINALSIGYAHRPI"
+解释：
+P     I    N
+A   L S  I G
+Y A   H R
+P     I
+```
+
+**示例 3：**
+
+```
+输入：s = "A", numRows = 1
+输出："A"
+```
+
+ 
+
+#### 解法
+
+模拟行为最后拼接。。。
+
+```python
+class Solution:
+    def convert(self, s: str, numRows: int) -> str:
+        if numRows == 1:
+            return s
+        # 模拟行为
+        string = [[0] * len(s) for _ in range(numRows)]
+        # x, y控制坐标，i控制字母
+        string[0][0] = s[0]
+        x, y, i = 0, 1, 1
+        while i < len(s):
+            # 先赋值再进行操作
+            string[y][x] = s[i]
+            i += 1
+            # 向右上
+            if y == numRows - 1:
+                x += 1
+                y -= 1
+                continue
+            # 向下
+            elif y == 0:
+                y += 1
+                continue
+            if string[y - 1][x] != 0:
+                y += 1
+            else:
+                x += 1
+                y -= 1
+        res = ''
+        for i in range(numRows):
+            for j in range(len(s)):
+                if string[i][j] != 0:
+                    res += string[i][j]
+        return res
+```
+
+对于模拟行为而言本题只有两个行为：一是向下走，而是向右上走，所以可以很简单的使用中间变量控制反转。
+
+```python
+class Solution:
+    def convert(self, s: str, numRows: int) -> str:
+        if numRows < 2:
+            return s
+        res = ["" for _ in range(numRows)]
+        i, flag = 0, -1
+        for c in s:
+            res[i] += c
+            # 控制反转
+            if i == 0 or i == numRows - 1:
+                flag = -flag
+            i += flag
+        return "".join(res)
+```
+
+
+
+### 1160 - 下一个排列<a id="p1160"></a>
+
+#### 问题
+
+整数数组的一个 **排列** 就是将其所有成员以序列或线性顺序排列。
+
+- 例如，`arr = [1,2,3]` ，以下这些都可以视作 `arr` 的排列：`[1,2,3]`、`[1,3,2]`、`[3,1,2]`、`[2,3,1]` 。
+
+整数数组的 **下一个排列** 是指其整数的下一个字典序更大的排列。更正式地，如果数组的所有排列根据其字典顺序从小到大排列在一个容器中，那么数组的 **下一个排列** 就是在这个有序容器中排在它后面的那个排列。如果不存在下一个更大的排列，那么这个数组必须重排为字典序最小的排列（即，其元素按升序排列）。
+
+- 例如，`arr = [1,2,3]` 的下一个排列是 `[1,3,2]` 。
+- 类似地，`arr = [2,3,1]` 的下一个排列是 `[3,1,2]` 。
+- 而 `arr = [3,2,1]` 的下一个排列是 `[1,2,3]` ，因为 `[3,2,1]` 不存在一个字典序更大的排列。
+
+给你一个整数数组 `nums` ，找出 `nums` 的下一个排列。
+
+必须**[ 原地 ](https://baike.baidu.com/item/原地算法)**修改，只允许使用额外常数空间。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,3]
+输出：[1,3,2]
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,2,1]
+输出：[1,2,3]
+```
+
+**示例 3：**
+
+```
+输入：nums = [1,1,5]
+输出：[1,5,1]
+```
+
+ 
+
+#### 解法
+
+数学规律
+
+```python
+class Solution:
+    def nextPermutation(self, nums: List[int]) -> None:
+        i = len(nums) - 1
+        # 倒序寻找第一个降序元素
+        while i > 0 and nums[i-1] >= nums[i]:
+            i -= 1
+        if i != 0:
+            j = len(nums) - 1
+            # 倒序寻找第一个比目标元素大的元素
+            while nums[j] <= nums[i-1]:
+                j -= 1
+            nums[i-1], nums[j] = nums[j], nums[i-1]
+        
+        # 排序 i 后面的部分
+        nums[i:] = sorted(nums[i:])    
+```
+
