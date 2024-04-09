@@ -12847,3 +12847,117 @@ class Solution:
         nums[i:] = sorted(nums[i:])    
 ```
 
+
+
+### 1161 - 旋转图像<a id="p1161"></a>
+
+#### 问题
+
+给定一个 *n* × *n* 的二维矩阵 `matrix` 表示一个图像。请你将图像顺时针旋转 90 度。
+
+你必须在**[ 原地](https://baike.baidu.com/item/原地算法)** 旋转图像，这意味着你需要直接修改输入的二维矩阵。**请不要** 使用另一个矩阵来旋转图像。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg)
+
+```
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[[7,4,1],[8,5,2],[9,6,3]]
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg)
+
+```
+输入：matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
+输出：[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
+```
+
+ 
+
+#### 解法
+
+使用额外数组进行逆序
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        temp = []
+        for lst in matrix:
+            temp.append(lst[:])
+        
+        lenth = len(matrix)
+        for i in range(lenth):
+            for j in range(lenth):
+                matrix[i][j] = temp[lenth - 1 - j][i]
+```
+
+运用数学思想，反转。
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+        # 数学
+        for i in range(len(matrix)):
+            for j in range(i + 1, len(matrix)):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+        for nums in matrix:
+            nums.reverse()
+```
+
+
+
+### 1162 - 字符串相乘<a id="p1162"></a>
+
+#### 问题
+
+给定两个以字符串形式表示的非负整数 `num1` 和 `num2`，返回 `num1` 和 `num2` 的乘积，它们的乘积也表示为字符串形式。
+
+**注意：**不能使用任何内置的 BigInteger 库或直接将输入转换为整数。
+
+ 
+
+**示例 1:**
+
+```
+输入: num1 = "2", num2 = "3"
+输出: "6"
+```
+
+**示例 2:**
+
+```
+输入: num1 = "123", num2 = "456"
+输出: "56088"
+```
+
+ 
+
+#### 解法
+
+运用数学思想即可解
+
+```python
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        # 将长的值作为第一个乘数，减少遍历次数
+        if len(num2) > len(num1):
+            num1, num2 = num2, num1
+        # 将第一个乘数转换为数字
+        num3 = 0
+        for num in num1:
+            num3 *= 10
+            num3 += ord(num) - ord("0")
+        res = 0
+        for i in range(len(num2)):
+            res += num3 * (ord(num2[i]) - ord('0')) * 10 ** (len(num2) - i - 1)
+        return str(res)
+```
+
