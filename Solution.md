@@ -2799,7 +2799,7 @@ class Solution:
         return result
 ```
 
-使用递归模板
+使用迭代模板
 
 ```python
 class Solution:
@@ -13023,5 +13023,101 @@ class Solution:
                     currTree.right = r
                     allTrees.append(currTree)  # 将这一层当前元素所有可能组成的搜索树放到列表中，如果已经是最外层，即表示当前元素所生成的所有的二叉搜索树结果放入list中
         return allTrees
+```
+
+
+
+### 1164 - 二叉搜索树中的第k小的元素<a id="p1164"></a>
+
+#### 问题
+
+给定一个二叉搜索树的根节点 `root` ，和一个整数 `k` ，请你设计一个算法查找其中第 `k` 个最小元素（从 1 开始计数）。
+
+ 
+
+**示例 1：**
+
+![img](./assets/kthtree1.jpg)
+
+```
+输入：root = [3,1,4,null,2], k = 1
+输出：1
+```
+
+**示例 2：**
+
+![img](./assets/kthtree2.jpg)
+
+```
+输入：root = [5,3,6,2,4,null,null,1], k = 3
+输出：3
+```
+
+ 
+
+#### 解法
+
+递归记录树中节点，排序
+
+```python
+class Solution:
+    def searchall(self, root, res):
+        if not root:
+            return
+        res.append(root.val)
+        self.searchall(root.left, res)
+        self.searchall(root.right, res)
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        # 使用列表存储树中所有元素
+        res = []
+        self.searchall(root, res)
+        res.sort()
+        return res[k - 1]
+```
+
+使用中序遍历记录所有节点，按照索引返回
+
+```python
+class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        # 二叉搜索树，左侧必定为最小
+        from collections import deque
+        res, deque = [], collections.deque()
+        if root:
+            deque.append(root)
+        # 前序遍历
+        while deque:
+            cur = deque.pop()
+            if cur:
+                if cur.right:
+                    deque.append(cur.right)
+
+                deque.append(cur)
+                deque.append(None)
+                
+                if cur.left:
+                    deque.append(cur.left)
+            else:
+                cur = deque.pop()
+                res.append(cur.val)
+        return res[k - 1]
+```
+
+较上优化：遇到索引则直接返回
+
+```python
+class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        from collections import deque
+        deque, cur = collections.deque(), root
+        while True:
+            while cur:
+                deque.append(cur)
+                cur = cur.left
+            cur = deque.pop()
+            k -= 1
+            if k == 0:
+                return cur.val
+            cur = cur.right
 ```
 
