@@ -13267,3 +13267,6 @@ class Solution:
         return (lst[sumofs // 3] - lst[sumofs // 3 - 1]) * (lst[sumofs // 3 * 2] - lst[sumofs // 3 * 2 - 1]) % (10 ** 9 + 7)
 ```
 
+
+
+占位
