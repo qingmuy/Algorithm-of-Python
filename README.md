@@ -45,6 +45,21 @@ while n >= 10:
 
 
 
+### 计算数组每列的和
+
+使用Python的zip函数，其可以将数组解压或压缩，具体参考：https://www.runoob.com/python/python-func-zip.html
+
+使用方法为将数组解压，即将数组的每列元素组成一个新的数组。参考：
+
+```python
+# 计算每列的和
+col_sum = [sum(col) for col in zip(*grid)]
+```
+
+
+
+
+
 ## 数据结构
 
 ### Collections模块
