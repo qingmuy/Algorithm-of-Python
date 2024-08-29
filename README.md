@@ -58,6 +58,22 @@ col_sum = [sum(col) for col in zip(*grid)]
 
 
 
+### 将二维数组进行转置
+
+使用`zip`函数将数组进行解压操作：解压操作需要使用`*`作为数组前缀
+
+如下：
+
+```python
+grid = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+new_grid = []
+for col in zip(*grid):
+    new_grid.appen(col)
+print()
+```
+
+
+
 
 
 ## 数据结构
